@@ -1,0 +1,23 @@
+# secrets
+.env*
+!.env.example
+
+# deps and build
+node_modules/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+next-env.d.ts
+.vercel/
+
+# personal course files (not part of the app)
+Claude outputs/
+Course_Portfolio_Review.md
+Fundamentals_of_AI_Study_Guide.md
+Problem Statement 6-2.pdf
+
+# os
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,99 @@
+{
+  "card": {
+    "id": "sample",
+    "name": "Ledgerlane",
+    "what": { "quote": "AI agents that reconcile invoices and payments for mid-sized manufacturers.", "source_url": "https://example.com/ledgerlane" },
+    "stage": "seed",
+    "stageLabel": "Seed",
+    "stageText": "seed",
+    "amountText": "₹6 Cr",
+    "amountUsd": "$682K",
+    "amountConflict": null,
+    "day": 4,
+    "daysLeft": 56,
+    "windowDays": 60,
+    "closing": false,
+    "announcedAt": "2026-10-08T05:30:00.000Z",
+    "total": 82,
+    "thesisVersion": 1,
+    "olderThesis": false,
+    "topCriteria": [
+      { "key": "sector_fit", "name": "Sector and business-model fit", "score_0_5": 5, "weight": 30, "evidence_quote": "builds AI agents that reconcile invoices and payments for mid-sized manufacturers", "evidence_fact_ids": ["r1.sector"], "source_url": "https://example.com/news/ledgerlane-seed" },
+      { "key": "programme_need", "name": "Programme need", "score_0_5": 4, "weight": 20, "evidence_quote": "will use the funds to build its first enterprise sales team", "evidence_fact_ids": ["r1.use_of_funds"], "source_url": "https://example.com/news/ledgerlane-seed" }
+    ],
+    "chips": [
+      { "key": "first_institutional", "label": "First institutional round" },
+      { "key": "named_customers", "label": "Named customers" },
+      { "key": "use_of_funds", "label": "Use of funds" }
+    ],
+    "confidenceLabel": "2 sources · verified",
+    "confidenceRank": 4,
+    "flags": [],
+    "warm": null,
+    "sources": [
+      { "url": "https://example.com/news/ledgerlane-seed", "publisher": "Example News", "tier": 2, "published_at": "2026-10-08T05:30:00.000Z" },
+      { "url": "https://example.com/press/ledgerlane", "publisher": "Example Wire", "tier": 1, "published_at": "2026-10-08T07:00:00.000Z" }
+    ],
+    "status": "fit",
+    "bucket": "fit",
+    "filterReason": null
+  },
+  "startup": { "id": "sample", "name": "Ledgerlane", "status": "fit", "website_url": "https://example.com/ledgerlane", "flags": [] },
+  "rounds": [
+    {
+      "id": "sample-r1",
+      "stage_text": "seed",
+      "amount_text": "₹6 Cr",
+      "publisher": "Example Wire",
+      "publisher_tier": 1,
+      "published_at": "2026-10-08T07:00:00.000Z",
+      "source_url": "https://example.com/press/ledgerlane",
+      "investors": ["Example Capital", "angel investors"],
+      "founders": [{ "name": "Meera Iyer", "role": "CEO", "background": null }, { "name": "Arjun Das", "role": "CTO", "background": "previously built payments infrastructure at a fintech company" }],
+      "quotes": { "stage_text": "Ledgerlane has raised ₹6 Cr in a seed round led by Example Capital", "amount_text": "raised ₹6 Cr in a seed round" }
+    },
+    {
+      "id": "sample-r2",
+      "stage_text": "seed",
+      "amount_text": "₹6 Cr",
+      "publisher": "Example News",
+      "publisher_tier": 2,
+      "published_at": "2026-10-08T05:30:00.000Z",
+      "source_url": "https://example.com/news/ledgerlane-seed",
+      "investors": ["Example Capital"],
+      "founders": [],
+      "quotes": { "stage_text": "Pune-based Ledgerlane has raised ₹6 Cr in its seed round" }
+    }
+  ],
+  "signals": [
+    { "group": "A", "name": "first_institutional", "label": "First institutional round", "value": "yes", "quote": "This is the company's first institutional round", "source_url": "https://example.com/press/ledgerlane" },
+    { "group": "C", "name": "use_of_funds", "label": "Use of funds", "value": "first enterprise sales team", "quote": "will use the funds to build its first enterprise sales team", "source_url": "https://example.com/news/ledgerlane-seed" },
+    { "group": "D", "name": "traction_customers", "label": "Named customers", "value": "pilots with two auto-component makers in Pune", "quote": "pilots with two auto-component makers in Pune", "source_url": "https://example.com/news/ledgerlane-seed" }
+  ],
+  "criteria": [
+    { "key": "sector_fit", "name": "Sector and business-model fit", "score_0_5": 5, "weight": 30, "evidence_quote": "builds AI agents that reconcile invoices and payments for mid-sized manufacturers", "evidence_fact_ids": ["r1.sector"], "source_url": "https://example.com/news/ledgerlane-seed" },
+    { "key": "programme_need", "name": "Programme need", "score_0_5": 4, "weight": 20, "evidence_quote": "will use the funds to build its first enterprise sales team", "evidence_fact_ids": ["r1.use_of_funds"], "source_url": "https://example.com/news/ledgerlane-seed" },
+    { "key": "progress", "name": "Evidence of progress", "score_0_5": 3, "weight": 20, "evidence_quote": "pilots with two auto-component makers in Pune", "evidence_fact_ids": ["r1.traction.0"], "source_url": "https://example.com/news/ledgerlane-seed" },
+    { "key": "team", "name": "Team, from work evidence", "score_0_5": 3, "weight": 15, "evidence_quote": "previously built payments infrastructure at a fintech company", "evidence_fact_ids": ["r1.founder_bg.1"], "source_url": "https://example.com/press/ledgerlane" },
+    { "key": "round_size", "name": "Round size in range", "score_0_5": 5, "weight": 15, "evidence_quote": "raised ₹6 Cr in a seed round", "evidence_fact_ids": ["r1.amount"], "source_url": "https://example.com/press/ledgerlane" }
+  ],
+  "draft": {
+    "id": "sample-draft",
+    "subject": "Ledgerlane's seed round and your first sales hires",
+    "body": "Hi Meera,\n\nI read that Ledgerlane raised ₹6 Cr in its seed round and plans to use it to build its first enterprise sales team. Selling AI reconciliation to mid-sized manufacturers is a long sale, and the pilots with two auto-component makers in Pune look like a good base for it.\n\nYour Accelerator runs a 12-week programme for pre-seed and seed B2B and AI founders in India. The part most relevant to you is go-to-market support: introductions to first enterprise customers and help hiring the first sales roles.\n\nIf useful, you can apply at https://example.com/apply or book a 20-minute call at https://example.com/20-min-call.\n\nRohit\nProgramme Lead, Your Accelerator",
+    "recipient": "founders@example.com",
+    "lint_errors": [],
+    "status": "draft"
+  },
+  "research": {
+    "url": "https://example.com/ledgerlane",
+    "title": "Ledgerlane",
+    "description": "AI agents that reconcile invoices and payments for mid-sized manufacturers.",
+    "contacts": [{ "address": "founders@example.com", "where_found_url": "https://example.com/ledgerlane/contact", "kind": "general" }],
+    "ok": true,
+    "error": null
+  },
+  "outreach": null,
+  "queue": { "ids": [], "index": -1 },
+  "hardRule": null
+}
