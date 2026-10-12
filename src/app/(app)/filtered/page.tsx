@@ -41,7 +41,7 @@ function Row({ c, rescue = true }: { c: CardView; rescue?: boolean }) {
       {c.total != null ? <span className="num small muted" aria-label={`Fit score ${c.total}`}>{c.total}/100</span> : null}
       {c.olderThesis && c.status !== "closed" ? (
         <ActionButton path={`/api/startups/${c.id}/rescore`} label="Rescore" busyLabel="Scoring" ariaLabel={`Rescore ${c.name}`}
-          done={(j) => (j.outcome === "fit" ? `${c.name} is now a Fit` : `${c.name} rescored`)} />
+          messages={{ fit: `${c.name} is now a Fit`, default: `${c.name} rescored` }} />
       ) : null}
       {rescue ? <RescueButton id={c.id} name={c.name} /> : null}
     </div>

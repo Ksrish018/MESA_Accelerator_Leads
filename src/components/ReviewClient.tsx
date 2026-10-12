@@ -188,7 +188,7 @@ export function ReviewClient({ v, sample = false }: { v: ReviewView; sample?: bo
             </div>
             {c.olderThesis && !decided && !sample ? (
               <div className="row" style={{ marginTop: 12 }}>
-                <ActionButton path={`/api/startups/${id}/rescore`} label="Rescore" busyLabel="Scoring" done={(j) => (j.outcome === "fit" ? "Now a Fit · draft ready" : "Rescored on the active thesis")} />
+                <ActionButton path={`/api/startups/${id}/rescore`} label="Rescore" busyLabel="Scoring" messages={{ fit: "Now a Fit · draft ready", default: "Rescored on the active thesis" }} />
               </div>
             ) : null}
           </div>
