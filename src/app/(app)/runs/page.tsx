@@ -37,7 +37,7 @@ export default async function Runs() {
 
   return (
     <>
-      <PageHero slot="runs" title="Runs" meta={last ? `Last run ${fmtDateTime(last.started_at)} · ${last.status === "done" ? "complete" : last.status === "running" ? "in progress" : "failed"}` : "No runs yet"}>
+      <PageHero slot="runs" title="Runs" lede="Each run's sources, results and cost. Look here if something seems missing." meta={last ? `Last run ${fmtDateTime(last.started_at)} · ${last.status === "done" ? "complete" : last.status === "running" ? "in progress" : "failed"}` : "No runs yet"}>
         <RunNow resumeId={running?.id ?? null} label={running ? "Resume run" : "Run now"} />
       </PageHero>
 

@@ -40,7 +40,7 @@ export default async function ThesisPage() {
 
   return (
     <>
-      <PageHero slot="thesis" title="Thesis" meta={active ? `Version ${active.version} · active since ${fmtDateTime(active.created_at)}` : "No active version"} />
+      <PageHero slot="thesis" title="Thesis" lede="What qualifies a startup. Edit it in Supabase; the next run follows it." meta={active ? `Version ${active.version} · active since ${fmtDateTime(active.created_at)}` : "No active version"} />
       <div className="wrap wrap-narrow section stack-24">
         {active ? (
           <section className="card stack-16 reveal">

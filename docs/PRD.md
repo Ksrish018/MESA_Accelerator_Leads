@@ -697,6 +697,8 @@ Each milestone works end to end before the next starts. **Commit and push after 
 - **Pipeline screen** (P0 in §5.8) built with a live animated flow and sources at every stage; a compact live strip on Today during a run.
 - **Global startup network:** global sources added; thesis v2 sets geography to Global with a code-scored *Home market: India* criterion (weight 10). Rescore per startup and Rescore all in window (T5) are in.
 - Sign-in page greets "Welcome, Rohit" (exception to §10.4).
+- **One context line per screen** (exception to §10.4, like the tour): at most 15 words, written as what Rohit does on that screen.
+- **Tab transitions:** View Transitions API. The active-tab highlight glides, the header photo and title morph into the next page, content fades and rises in. CSS fallback; none under reduced motion.
 
 ## 18. Open questions
 1. ~~Accelerator name~~ Default: "Your Accelerator" / "Rohit, Programme Lead", editable in `settings`.

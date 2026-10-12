@@ -12,7 +12,7 @@ export default async function Pipeline() {
   const sourcesOn = view.sources.length;
   return (
     <>
-      <PageHero slot="runs" title="Pipeline" meta={`${sourcesOn} sources · thesis v${thesis.version} · ${rows.length} startups tracked`} />
+      <PageHero slot="runs" title="Pipeline" lede="Watch each run turn news into drafts. Tap any item to see its source." meta={`${sourcesOn} sources · thesis v${thesis.version} · ${rows.length} startups tracked`} />
       <div className="wrap wrap-wide section stack-24">
         <PipelineFlow initial={view} />
         <StartupTable rows={rows} windowDays={thesis.window_days} />

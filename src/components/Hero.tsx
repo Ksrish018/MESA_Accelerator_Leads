@@ -20,7 +20,7 @@ export function HeroImage({ slot, priority = false, zoom = false }: { slot: Slot
   );
 }
 
-export function PageHero({ slot, title, meta, children }: { slot: SlotName; title: string; meta?: React.ReactNode; children?: React.ReactNode }) {
+export function PageHero({ slot, title, meta, lede, children }: { slot: SlotName; title: string; meta?: React.ReactNode; lede?: string; children?: React.ReactNode }) {
   return (
     <div className="page-hero hero" data-parallax>
       <HeroImage slot={slot} priority />
@@ -30,6 +30,7 @@ export function PageHero({ slot, title, meta, children }: { slot: SlotName; titl
           <div className="reveal">
             <h1 className="h1">{title}</h1>
             {meta ? <div className="muted" style={{ marginTop: 6 }}>{meta}</div> : null}
+            {lede ? <p className="page-lede">{lede}</p> : null}
           </div>
           {children}
         </div>

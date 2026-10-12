@@ -165,6 +165,7 @@ export function ReviewClient({ v, sample = false }: { v: ReviewView; sample?: bo
         <Link href="/" className="btn btn-ghost btn-sm">Back to Today</Link>
         {position ? <span className="small muted num" aria-label={`Startup ${position}`}>{position}</span> : null}
       </div>
+      <p className="lede" style={{ marginBottom: 16 }}>Check each fact against its source, edit the email, then approve or skip.</p>
 
       <div className="review">
         {/* Left: facts, signals, evidence */}

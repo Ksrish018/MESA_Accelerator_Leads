@@ -34,7 +34,7 @@ export default async function Today() {
 
   return (
     <>
-      <PageHero slot="today" title="Today" meta={`${fmtDate(new Date())} · ${lastLabel}`}>
+      <PageHero slot="today" title="Today" lede="Startups that fit your thesis, most urgent first. Open one to review and approve." meta={`${fmtDate(new Date())} · ${lastLabel}`}>
         <div className="row">
           {stalled ? <span className="small" style={{ color: "#fff" }}>Last run incomplete</span> : null}
           <RunNow resumeId={incomplete?.id ?? null} label={incomplete ? "Resume run" : "Run now"} />

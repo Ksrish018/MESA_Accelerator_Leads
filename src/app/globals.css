@@ -115,10 +115,14 @@ img { max-width: 100%; }
 .topbar-inner { height: 52px; display: flex; align-items: center; gap: 24px; }
 .brand { font-weight: 600; font-size: 17px; color: var(--text); letter-spacing: -0.02em; white-space: nowrap; }
 .brand:hover { text-decoration: none; }
-.nav { display: flex; gap: 4px; flex: 1; }
-.nav a { color: var(--text); opacity: 0.8; font-size: 14px; padding: 6px 12px; border-radius: 999px; transition: background 200ms var(--ease), opacity 200ms; }
-.nav a:hover { opacity: 1; text-decoration: none; background: var(--bg-2); }
-.nav a[aria-current="page"] { opacity: 1; background: var(--bg-2); font-weight: 500; }
+.nav { display: flex; gap: 4px; flex: 1; position: relative; }
+.nav-pill {
+  position: absolute; left: 0; top: 50%; height: 30px; margin-top: -15px; border-radius: 999px; background: var(--bg-2);
+  transition: transform 380ms var(--ease), width 380ms var(--ease); view-transition-name: nav-pill; pointer-events: none;
+}
+.nav a { position: relative; z-index: 1; color: var(--text); opacity: 0.8; font-size: 14px; padding: 6px 12px; border-radius: 999px; transition: background 200ms var(--ease), opacity 200ms; }
+.nav a:hover { opacity: 1; text-decoration: none; }
+.nav a[aria-current="page"] { opacity: 1; font-weight: 500; }
 .icon-btn {
   width: 36px; height: 36px; border-radius: 999px; border: 1px solid var(--hair); background: transparent;
   display: inline-grid; place-items: center; cursor: pointer; color: var(--text); font-size: 15px; font-weight: 600;
@@ -195,11 +199,11 @@ a.card:hover { text-decoration: none; transform: translateY(-2px); box-shadow: v
 .hero-scrim { position: absolute; inset: 0; background: var(--scrim); }
 .hero-fallback { position: absolute; inset: 0; background: radial-gradient(120% 90% at 70% 10%, #f7c79b 0%, #c96f6a 30%, #3a3159 65%, #0b0b14 100%); }
 
-.page-hero { position: relative; height: 240px; overflow: hidden; border-radius: 0 0 28px 28px; }
+.page-hero { position: relative; height: 290px; overflow: hidden; border-radius: 0 0 28px 28px; }
 .page-hero .hero-scrim { background: linear-gradient(180deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.62) 100%); }
 .page-hero-content { position: absolute; left: 0; right: 0; bottom: 24px; color: #fff; }
 .page-hero-content .muted { color: rgba(255, 255, 255, 0.82); }
-@media (max-width: 760px) { .page-hero { height: 200px; border-radius: 0 0 20px 20px; } }
+@media (max-width: 760px) { .page-hero { height: 270px; border-radius: 0 0 20px 20px; } .page-lede { font-size: 14px; } }
 
 /* ---------- Sign-in ---------- */
 .signin { min-height: 100svh; position: relative; display: grid; place-items: end start; color: #fff; }
@@ -410,3 +414,35 @@ hr.hair { border: 0; border-top: 1px solid var(--hair); margin: 24px 0; }
 .strip-stage { position: relative; display: flex; flex-direction: column; }
 .strip-arrow { position: absolute; right: -2px; top: 4px; color: var(--muted); font-style: normal; }
 @media (max-width: 560px) { .strip-stages { grid-template-columns: repeat(3, 1fr); row-gap: 12px; } .strip-arrow { display: none; } }
+
+/* ---------- Tab transitions (View Transitions API, PRD §10.1 motion) ---------- */
+.topbar { view-transition-name: topbar; }
+.bottom-nav { view-transition-name: bottom-nav; }
+.page-hero { view-transition-name: hero; }
+.page-hero .h1 { view-transition-name: page-title; }
+.page-hero .page-lede { view-transition-name: page-lede; }
+::view-transition-old(root) { animation: vt-out 200ms ease-in both; }
+::view-transition-new(root) { animation: vt-in 420ms var(--ease) both; }
+::view-transition-group(hero), ::view-transition-group(page-title), ::view-transition-group(page-lede), ::view-transition-group(nav-pill) { animation-duration: 450ms; animation-timing-function: var(--ease); }
+::view-transition-old(hero) { animation: vt-hero-out 450ms var(--ease) both; }
+::view-transition-new(hero) { animation: vt-hero-in 450ms var(--ease) both; }
+::view-transition-old(page-title), ::view-transition-old(page-lede) { animation: vt-out 180ms ease-in both; }
+::view-transition-new(page-title), ::view-transition-new(page-lede) { animation: vt-title-in 420ms var(--ease) 80ms both; }
+@keyframes vt-out { to { opacity: 0; } }
+@keyframes vt-in { from { opacity: 0; transform: translateY(14px); } }
+@keyframes vt-hero-out { to { opacity: 0; transform: scale(1.03); } }
+@keyframes vt-hero-in { from { opacity: 0; transform: scale(1.03); } }
+@keyframes vt-title-in { from { opacity: 0; transform: translateX(-16px); } }
+
+/* Fallback when the browser has no View Transitions: each page fades and rises in. */
+.page-enter { animation: page-in 380ms var(--ease) both; }
+.vt-active .page-enter { animation: none; }
+@keyframes page-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+.page-lede { margin: 6px 0 0; font-size: 15px; line-height: 1.4; color: rgba(255, 255, 255, 0.85); max-width: 640px; }
+.lede { margin: 0; font-size: 15px; color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+  .nav-pill { transition: none; }
+}

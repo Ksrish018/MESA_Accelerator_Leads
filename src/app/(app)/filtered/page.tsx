@@ -57,7 +57,7 @@ export default async function Filtered() {
 
   return (
     <>
-      <PageHero slot="filtered" title="Filtered out" meta={`${cards.length} startups · ${contacted.length} already contacted`} />
+      <PageHero slot="filtered" title="Filtered out" lede="Startups that did not qualify, with the reason. Rescue any the system got wrong." meta={`${cards.length} startups · ${contacted.length} already contacted`} />
       <div className="wrap section stack-24">
         {!cards.length && !contacted.length ? (
           <p className="muted">Nothing filtered out yet. Run now to read today&apos;s sources.</p>
