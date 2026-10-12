@@ -52,11 +52,15 @@ Code does the checking; Gemini does the reading and writing. Gemini Flash is the
 
 ## Screens
 
-Sign-in · Today · Review · Filtered out · Thesis · Runs · Credits · Help (`?`) with the 6-step Quick tour. A labelled Sample startup (`public/demo/sample.json`) is used by the tour only when there is no live Fit; it is never stored or drafted.
+Sign-in · Today · **Pipeline** · Review · Filtered out · Thesis · Runs · Credits · Help (`?`) with the 6-step Quick tour.
 
-## Sources
+**Pipeline** shows each run as a live, animated flow: Sources → Articles → Rounds → Checked → Scored → Drafted. Every stage lists the real items with a link to their source (feed, article, publisher), updating every 2.5 s while a run is in progress; any earlier run can be replayed. Below it, every startup ever seen with its status and window. Today shows a compact live strip while a run is in progress. A labelled Sample startup (`public/demo/sample.json`) is used by the tour only when there is no live Fit; it is never stored or drafted.
 
-Live from Vercel on 12 Oct 2026: Entrackr, ET Tech, Inc42, YourStory, TechCrunch Venture, PR Newswire Venture Capital, and two Google News queries (counted only when the original publisher is on the Tier 1–2 allowlist). Moneycontrol (403) and VCCircle (404) are switched off in the `sources` table.
+## Sources (global startup network)
+
+20 feeds respond from Vercel (checked 12 Oct 2026). India: Entrackr, ET Tech, Inc42, YourStory, two Google News queries. Global: PR Newswire Venture Capital, TechCrunch Venture and Startups, Crunchbase News, Tech.eu, Sifted, EU-Startups, Silicon Canals, TechCabal, Disrupt Africa, Contxto, and Google News queries for the US, Europe and Asia. Google News items count only when the original publisher is on the Tier 1–2 allowlist. Switched off because they refuse Vercel (403/404): Moneycontrol, VCCircle, e27, FinSMEs, Tech in Asia, GlobeNewswire.
+
+**Thesis v2 (active):** geography Global, with a code-scored *Home market: India* criterion (weight 10) as a small boost. v1 (India only) stays in `thesis_versions` for history; Thesis shows the diff and **Rescore all in window**.
 
 ## Imagery
 

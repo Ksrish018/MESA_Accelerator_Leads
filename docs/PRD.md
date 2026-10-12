@@ -693,6 +693,11 @@ Each milestone works end to end before the next starts. **Commit and push after 
 | Hobby cron fires late in the hour | Certain | Acceptable for a morning digest. Run now covers urgent cases |
 | Front-end polish eats the schedule | Medium | The design system is fixed in M4 before screens. Imagery is chosen once |
 
+## 17a. Changes after v1.4 (12 Oct, owner decisions)
+- **Pipeline screen** (P0 in §5.8) built with a live animated flow and sources at every stage; a compact live strip on Today during a run.
+- **Global startup network:** global sources added; thesis v2 sets geography to Global with a code-scored *Home market: India* criterion (weight 10). Rescore per startup and Rescore all in window (T5) are in.
+- Sign-in page greets "Welcome, Rohit" (exception to §10.4).
+
 ## 18. Open questions
 1. ~~Accelerator name~~ Default: "Your Accelerator" / "Rohit, Programme Lead", editable in `settings`.
 2. ~~Grader access~~ Default: a public landing page plus a password in the submission note.
