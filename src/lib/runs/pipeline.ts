@@ -219,7 +219,8 @@ async function stepWindow(run: RunRow) {
 export async function advanceRun(runId: string, budgetMs: number): Promise<RunRow> {
   const supa = db();
   const deadline = Date.now() + budgetMs;
-  const lockSeconds = Math.ceil(budgetMs / 1000) + 30;
+  // The lock must outlast the slowest unit (page fetch + Gemini retries) so two calls never overlap.
+  const lockSeconds = Math.min(290, Math.ceil(budgetMs / 1000) + 240);
   const claimed = must(await supa.rpc("claim_run", { p_run: runId, p_seconds: lockSeconds }), "claim run") as RunRow[];
   if (!claimed.length) {
     return must(await supa.from("runs").select("*").eq("id", runId).single(), "load run") as RunRow;

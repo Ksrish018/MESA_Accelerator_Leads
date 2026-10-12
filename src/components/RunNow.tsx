@@ -46,7 +46,8 @@ export function RunNow({ label = "Run now", resumeId = null }: { label?: string;
         idle = JSON.stringify(next.counts) === JSON.stringify(r.counts) && next.step === r.step ? idle + 1 : 0;
         r = next;
         setRun(r);
-        if (idle >= 3) throw new Error("The run is paused. Try again in a few minutes.");
+        if (idle >= 12) throw new Error("The run is paused. Try again in a few minutes.");
+        if (idle) await new Promise((w) => setTimeout(w, 5000));
         router.refresh();
       }
     } catch (e) {
