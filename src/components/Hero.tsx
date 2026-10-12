@@ -20,9 +20,9 @@ export function HeroImage({ slot, priority = false, zoom = false }: { slot: Slot
   );
 }
 
-export function PageHero({ slot, title, meta, lede, children }: { slot: SlotName; title: string; meta?: React.ReactNode; lede?: string; children?: React.ReactNode }) {
+export function PageHero({ slot, title, meta, lede, compact = false, children }: { slot: SlotName; title: string; meta?: React.ReactNode; lede?: string; compact?: boolean; children?: React.ReactNode }) {
   return (
-    <div className="page-hero hero" data-parallax>
+    <div className={`page-hero hero${compact ? " page-hero-compact" : ""}`} data-parallax>
       <HeroImage slot={slot} priority />
       <div className="hero-scrim" />
       <div className="page-hero-content">

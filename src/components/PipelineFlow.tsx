@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { PipelineView, StageKey } from "@/lib/pipeline";
 import { fmtTime, hostOf } from "@/lib/format";
 import { CountUp } from "./CountUp";
+import { FlowRibbon } from "./FlowRibbon";
 import { RunNow } from "./RunNow";
 
 const STAGES: { key: StageKey; title: string }[] = [
@@ -39,8 +40,9 @@ function minutes(a: string, b: string | null) {
   return `${m} min`;
 }
 
-export function PipelineFlow({ initial }: { initial: PipelineView }) {
+export function PipelineFlow({ initial, table }: { initial: PipelineView; table?: React.ReactNode }) {
   const [view, setView] = useState<PipelineView>(initial);
+  const [tab, setTab] = useState<"flow" | "startups">("flow");
   const [pinned, setPinned] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [bump, setBump] = useState(0);
@@ -118,7 +120,7 @@ export function PipelineFlow({ initial }: { initial: PipelineView }) {
   }), [view, c]);
 
   return (
-    <section className="stack-24" aria-label="Pipeline" data-run={view.run?.id ?? ""} data-pinned={pinned ?? ""}>
+    <section className="stack-16 pipeline" aria-label="Pipeline" data-run={view.run?.id ?? ""}>
       <div className="row between">
         <div className="stack-8">
           <div className="row">
@@ -136,7 +138,11 @@ export function PipelineFlow({ initial }: { initial: PipelineView }) {
           </div>
         </div>
         <div className="row">
-          {view.runs.length > 1 ? (
+          <div className="segmented" role="tablist" aria-label="View">
+            <button role="tab" aria-selected={tab === "flow"} className={tab === "flow" ? "on" : ""} onClick={() => setTab("flow")}>Flow</button>
+            <button role="tab" aria-selected={tab === "startups"} className={tab === "startups" ? "on" : ""} onClick={() => setTab("startups")}>Startups</button>
+          </div>
+          {view.runs.length > 1 && tab === "flow" ? (
             <label className="row small">
               <span className="sr-only">Run</span>
               <select className="field" style={{ width: "auto", padding: "8px 12px" }} value={pinned ?? ""} onChange={(e) => setPinned(e.target.value || null)}>
@@ -152,6 +158,14 @@ export function PipelineFlow({ initial }: { initial: PipelineView }) {
       </div>
       {error ? <p className="small" role="alert" style={{ color: "var(--chip-red)", margin: 0 }}>Live updates paused. {error}</p> : null}
 
+      {tab === "startups" ? <div className="startups-pane">{table}</div> : null}
+      {tab === "flow" ? (
+      <>
+      <FlowRibbon
+        counts={STAGES.map((s) => counts[s.key])}
+        activeIndex={STAGES.map((s, i) => (active.has(s.key) ? i : -1)).filter((i) => i >= 0)}
+        running={running}
+      />
       <div className="flow" role="list">
         {STAGES.map((s, i) => (
           <div key={s.key} className="flow-cell" role="listitem">
@@ -229,6 +243,8 @@ export function PipelineFlow({ initial }: { initial: PipelineView }) {
           </div>
         ))}
       </div>
+      </>
+      ) : null}
     </section>
   );
 }
