@@ -81,8 +81,22 @@ function recordError(run: RunRow, step: string, e: unknown) {
 /** Article text for extraction: feed content, else the page if robots allows, else title and summary. */
 async function articleText(a: Record<string, any>): Promise<string> {
   const head = `${a.title}\n${a.summary ?? ""}`;
-  if (a.body_text) return truncate(`${head}\n${a.body_text}`, 14000);
-  if (a.publisher_domain && !/news\.google\.com/.test(a.url)) {
+  const fetchable = a.publisher_domain && !/news\.google\.com/.test(a.url);
+  if (a.body_text) {
+    let body: string = a.body_text;
+    // Stored before links were kept: add the article's outbound links (robots.txt permitting).
+    if (!body.includes("Links in article:") && fetchable) {
+      const page = await fetchPage(a.url, 9000);
+      const m = page?.html.match(/<article[\s\S]*?<\/article>/i);
+      const links = page ? extractLinks(m ? m[0] : page.html, domainOf(a.url)) : [];
+      if (links.length) {
+        body = `${body}\nLinks in article:\n${links.join("\n")}`;
+        await db().from("articles").update({ body_text: truncate(body, 20000) }).eq("id", a.id);
+      }
+    }
+    return truncate(`${head}\n${body}`, 14000);
+  }
+  if (fetchable) {
     const page = await fetchPage(a.url, 9000);
     if (page) {
       const m = page.html.match(/<article[\s\S]*?<\/article>/i);
