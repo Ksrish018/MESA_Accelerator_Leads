@@ -81,7 +81,8 @@ img { max-width: 100%; }
 /* ---------- Layout ---------- */
 .wrap { width: 100%; max-width: 1120px; margin: 0 auto; padding: 0 24px; }
 .wrap-narrow { max-width: 860px; }
-.section { padding: 48px 0; }
+.section { padding-top: 48px; padding-bottom: 48px; }
+@media (max-width: 560px) { .wrap { padding: 0 16px; } .section { padding-top: 32px; padding-bottom: 32px; } }
 .stack-8 > * + * { margin-top: 8px; }
 .stack-16 > * + * { margin-top: 16px; }
 .stack-24 > * + * { margin-top: 24px; }
@@ -195,7 +196,7 @@ a.card:hover { text-decoration: none; transform: translateY(-2px); box-shadow: v
 .hero-fallback { position: absolute; inset: 0; background: radial-gradient(120% 90% at 70% 10%, #f7c79b 0%, #c96f6a 30%, #3a3159 65%, #0b0b14 100%); }
 
 .page-hero { position: relative; height: 240px; overflow: hidden; border-radius: 0 0 28px 28px; }
-.page-hero .hero-scrim { background: linear-gradient(180deg, rgba(0,0,0,0.05) 0%, rgba(0,0,0,0.45) 100%); }
+.page-hero .hero-scrim { background: linear-gradient(180deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.62) 100%); }
 .page-hero-content { position: absolute; left: 0; right: 0; bottom: 24px; color: #fff; }
 .page-hero-content .muted { color: rgba(255, 255, 255, 0.82); }
 @media (max-width: 760px) { .page-hero { height: 200px; border-radius: 0 0 20px 20px; } }
