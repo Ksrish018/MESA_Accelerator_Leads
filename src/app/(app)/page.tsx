@@ -5,6 +5,7 @@ import { SampleWhenTouring } from "@/components/SampleCard";
 import { StartupCard } from "@/components/StartupCard";
 import { fmtDate, fmtTime } from "@/lib/format";
 import { kpis, lastRun, todayCards } from "@/lib/queries";
+import { LiveStrip } from "@/components/LiveStrip";
 
 export const metadata = { title: "Today" };
 export const dynamic = "force-dynamic";
@@ -17,6 +18,8 @@ export default async function Today() {
   const lastLabel = runs.lastDone ? `Last run ${fmtTime(runs.lastDone.finished_at ?? runs.lastDone.started_at)}` : "No completed run yet";
   const incomplete = runs.latest && runs.latest.status === "running" ? runs.latest : null;
   const sinceLabel = since ? fmtTime(since) : "the first run";
+  // A run still going after 45 minutes has stalled (each slice is about a minute).
+  const stalled = !!incomplete && Date.now() - new Date(incomplete.started_at).getTime() > 45 * 60_000;
 
   const empty = (
     <div className="card card-flat hero" style={{ position: "relative", minHeight: 260, display: "grid", placeItems: "center", textAlign: "center", overflow: "hidden" }}>
@@ -33,12 +36,13 @@ export default async function Today() {
     <>
       <PageHero slot="today" title="Today" meta={`${fmtDate(new Date())} · ${lastLabel}`}>
         <div className="row">
-          {incomplete ? <span className="small" style={{ color: "#fff" }}>Last run incomplete</span> : null}
+          {stalled ? <span className="small" style={{ color: "#fff" }}>Last run incomplete</span> : null}
           <RunNow resumeId={incomplete?.id ?? null} label={incomplete ? "Resume run" : "Run now"} />
         </div>
       </PageHero>
 
       <div className="wrap section stack-24">
+        <LiveStrip initial={incomplete ? { id: incomplete.id, status: incomplete.status, step: incomplete.step, counts: incomplete.counts ?? {} } : null} />
         <section aria-label="Key numbers" className="kpis reveal reveal-1">
           <div className="kpi"><div className="kpi-n"><CountUp value={k.newRounds} /></div><div className="kpi-l">New rounds since {sinceLabel}</div></div>
           <div className="kpi"><div className="kpi-n"><CountUp value={k.fits} /></div><div className="kpi-l">Fits in window</div></div>

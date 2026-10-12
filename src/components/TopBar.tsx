@@ -7,6 +7,7 @@ import { Help } from "./Help";
 
 const NAV = [
   { href: "/", label: "Today", tour: "nav-today" },
+  { href: "/pipeline", label: "Pipeline", tour: "nav-pipeline" },
   { href: "/filtered", label: "Filtered out", tour: "nav-filtered" },
   { href: "/thesis", label: "Thesis", tour: "nav-thesis" },
   { href: "/runs", label: "Runs", tour: "nav-runs" },

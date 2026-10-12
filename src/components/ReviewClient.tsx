@@ -9,6 +9,7 @@ import { fmtShortDate, hostOf } from "@/lib/format";
 import { Chip } from "./Chip";
 import { DayChip } from "./StartupCard";
 import { useToast } from "./Toast";
+import { ActionButton } from "./ActionButton";
 
 const SKIP_REASONS = ["Not our sector", "Too early", "Too late", "Already in touch", "Other"];
 const TIER: Record<number, string> = { 1: "Primary", 2: "Press", 3: "Discovery" };
@@ -184,6 +185,11 @@ export function ReviewClient({ v, sample = false }: { v: ReviewView; sample?: bo
               {c.olderThesis ? <Chip label="Older thesis" /> : null}
               {c.flags.map((f) => <Chip key={f} label={f} />)}
             </div>
+            {c.olderThesis && !decided && !sample ? (
+              <div className="row" style={{ marginTop: 12 }}>
+                <ActionButton path={`/api/startups/${id}/rescore`} label="Rescore" busyLabel="Scoring" done={(j) => (j.outcome === "fit" ? "Now a Fit · draft ready" : "Rescored on the active thesis")} />
+              </div>
+            ) : null}
           </div>
 
           <div>

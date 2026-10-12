@@ -134,6 +134,17 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         return NextResponse.json({ ok: true });
       }
 
+      /** Rescore on the active thesis (T5). Hard rules run again, then score and draft if it is now a Fit. */
+      case "rescore": {
+        if (["drafted", "sent", "replied", "skipped"].includes(s.status)) return NextResponse.json({ error: "Already contacted" }, { status: 409 });
+        await supa.from("startups").update({
+          needs_eval: true, eval_attempts: 0, flags: (s.flags ?? []).filter((f: string) => f !== "Older thesis"), updated_at: now,
+        }).eq("id", id);
+        await supa.from("triggers").insert({ startup_id: id, type: "T5", detail: "Rescored on the active thesis" });
+        const outcome = await evaluateStartup(id, await ctx());
+        return NextResponse.json({ ok: true, outcome });
+      }
+
       /** Only Rohit can reopen a contacted company. */
       case "reopen": {
         await supa.from("outreach").delete().eq("startup_id", id);

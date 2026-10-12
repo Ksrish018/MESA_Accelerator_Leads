@@ -38,8 +38,9 @@ export interface Criterion {
   key: string;
   name: string;
   weight: number;
-  kind: "ai" | "round_size";
+  kind: "ai" | "round_size" | "geography";
   description: string;
+  match?: string[]; // geography criterion: places that score 5
 }
 
 export interface Thesis {

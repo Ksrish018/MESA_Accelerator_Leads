@@ -7,7 +7,7 @@ import { bucketFor, computeTotal, roundSizeScore } from "@/lib/score/buckets";
 import { quoteFound, verifyRound } from "@/lib/verify/quotes";
 import { checkClaims } from "@/lib/verify/claims";
 import { lintDraft } from "@/lib/draft/lint";
-import { applyHardRules, excludedSector } from "@/lib/thesis/rules";
+import { applyHardRules, excludedSector, geographyScore, isGlobal } from "@/lib/thesis/rules";
 import { comparePriority, confidence, sortByPriority, warmPath } from "@/lib/score/priority";
 import { isFundingCandidate } from "@/lib/sources/prefilter";
 import { extractEmails, rankContacts } from "@/lib/research/contacts";
@@ -224,6 +224,21 @@ describe("hard rules", () => {
   it("unknown location is a flag, not a fail", () => expect(applyHardRules({ ...base, location: null }, thesis)).toEqual({ pass: true, flags: ["Location unclear"] }));
   it("undisclosed stage parks the lead", () => expect(applyHardRules({ ...base, stage: "unknown" }, thesis)).toMatchObject({ pass: false, park: true }));
   it("needs a credible source", () => expect(applyHardRules({ ...base, has_credible_source: false }, thesis)).toMatchObject({ rule: "credibility" }));
+});
+
+describe("global thesis", () => {
+  const global = { ...thesis, geographies: ["Global"] };
+  it("global geography passes any known location", () => expect(applyHardRules({ stage: "seed", stage_text: "seed", negative_events: [], sector_words: ["devtools"], location: "San Francisco", announced_at: new Date().toISOString(), contacted: false, has_credible_source: true }, global).pass).toBe(true));
+  it("isGlobal", () => { expect(isGlobal(["Global"])).toBe(true); expect(isGlobal(["India"])).toBe(false); });
+  it("home market boost is code, never inferred", () => {
+    expect(geographyScore("Pune, India", ["India", "Pune"])).toBe(5);
+    expect(geographyScore("Berlin", ["India", "Pune"])).toBe(0);
+    expect(geographyScore(null, ["India"])).toBe(2);
+  });
+  it("geography criterion counts in the total", () => {
+    const crit = [...thesis.criteria, { key: "home_market", name: "Home", weight: 10, kind: "geography" as const, description: "" }];
+    expect(computeTotal([{ key: "sector_fit", score_0_5: 5 }, { key: "programme_need", score_0_5: 5 }, { key: "progress", score_0_5: 5 }, { key: "team", score_0_5: 5 }, { key: "round_size", score_0_5: 5 }, { key: "home_market", score_0_5: 0 }], crit)).toBe(91);
+  });
 });
 
 describe("dedupe of raw items", () => {

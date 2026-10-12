@@ -34,6 +34,13 @@ function hasWord(hay: string, needle: string): boolean {
   return new RegExp(`(^|[^a-z0-9])${esc}($|[^a-z0-9])`, "i").test(hay);
 }
 
+/** Geography criterion (kind "geography"): 5 inside the listed places, 2 when unknown, 0 elsewhere. */
+export function geographyScore(location: string | null, places: string[] = []): number {
+  if (!location || !location.trim()) return 2;
+  const loc = location.toLowerCase();
+  return places.some((p) => hasWord(loc, p)) ? 5 : 0;
+}
+
 export function excludedSector(sectorWords: string[], thesis: Pick<Thesis, "exclude_sectors" | "sector_keywords">): string | null {
   const hay = sectorWords.join(" | ").toLowerCase();
   if (!hay.trim()) return null;
@@ -49,7 +56,14 @@ export function excludedSector(sectorWords: string[], thesis: Pick<Thesis, "excl
   return null;
 }
 
+const GLOBAL = /^(global|any|worldwide|all)$/i;
+
+export function isGlobal(geographies: string[]): boolean {
+  return geographies.some((g) => GLOBAL.test(g.trim()));
+}
+
 export function inGeography(location: string | null, geographies: string[]): boolean | null {
+  if (isGlobal(geographies)) return true;
   if (!location || !location.trim()) return null;
   const loc = location.toLowerCase();
   return geographies.some((g) => hasWord(loc, g));
@@ -83,6 +97,6 @@ export function applyHardRules(input: RuleInput, thesis: Thesis, now: Date = new
   if (!input.has_credible_source) return { pass: false, rule: "credibility", reason: "No Tier 1 or 2 source" };
 
   const flags: string[] = [];
-  if (geo === null) flags.push("Location unclear");
+  if (!input.location?.trim()) flags.push("Location unclear");
   return { pass: true, flags };
 }

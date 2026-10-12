@@ -105,7 +105,7 @@ export async function evaluateStartup(startupId: string, ctx: EvalCtx): Promise<
   const facts = buildFacts(s as { name: string }, rounds, research.ok ? research : null);
   const amountUsd = rounds.map((r) => Number(r.amount_usd_est)).find((x) => x > 0) ?? null;
 
-  const scored = await scoreStartup({ runId: ctx.runId, name: s.name, facts, thesis: ctx.thesis, settings: ctx.settings, amountUsd });
+  const scored = await scoreStartup({ runId: ctx.runId, name: s.name, facts, thesis: ctx.thesis, settings: ctx.settings, amountUsd, location: s.location });
   await supa.from("scores").insert({
     startup_id: startupId, thesis_version: ctx.thesis.version, criteria: scored.criteria, total: scored.total, bucket: scored.bucket,
   });

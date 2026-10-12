@@ -3,6 +3,7 @@ import { asData, callGemini, DATA_RULE } from "../gemini";
 import type { CriterionScore, Fact, Settings, Thesis } from "../types";
 import { normalizeForMatch } from "../text";
 import { bucketFor, computeTotal, roundSizeScore } from "./buckets";
+import { geographyScore } from "../thesis/rules";
 
 const SCHEMA = {
   type: "OBJECT",
@@ -38,6 +39,7 @@ export async function scoreStartup(opts: {
   thesis: Thesis;
   settings: Settings;
   amountUsd: number | null;
+  location?: string | null;
 }): Promise<{ criteria: CriterionScore[]; total: number; bucket: ReturnType<typeof bucketFor> }> {
   const aiCriteria = opts.thesis.criteria.filter((c) => c.kind === "ai");
   const factIds = new Set(opts.facts.map((f) => f.id));
@@ -79,6 +81,14 @@ Score 0 when the facts give no evidence for a criterion. Never use outside knowl
         score_0_5: roundSizeScore(opts.amountUsd, opts.thesis.min_round_usd, opts.thesis.max_round_usd),
         evidence_quote: opts.facts.find((f) => f.id.endsWith(".amount"))?.quote ?? null,
         source_url: opts.facts.find((f) => f.id.endsWith(".amount"))?.source_url ?? null,
+      };
+    }
+    if (c.kind === "geography") {
+      const loc = opts.facts.find((f) => f.id.endsWith(".location"));
+      return {
+        key: c.key, name: c.name, weight: c.weight, evidence_fact_ids: loc ? [loc.id] : [],
+        score_0_5: geographyScore(opts.location ?? null, c.match ?? []),
+        evidence_quote: loc?.quote ?? null, source_url: loc?.source_url ?? null,
       };
     }
     const g = out.criteria.find((y) => y.key === c.key);

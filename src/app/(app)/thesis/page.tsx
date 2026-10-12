@@ -1,3 +1,4 @@
+import { ActionButton } from "@/components/ActionButton";
 import { PageHero } from "@/components/Hero";
 import { formatUsd } from "@/lib/extract/amount";
 import { fmtDateTime } from "@/lib/format";
@@ -58,6 +59,8 @@ export default async function ThesisPage() {
             {link ? (
               <div className="row" style={{ paddingTop: 8 }}>
                 <a className="btn btn-secondary btn-sm" href={link} target="_blank" rel="noreferrer">Open thesis_versions in Supabase</a>
+                <ActionButton path="/api/rescore" label="Rescore all in window" busyLabel="Queuing"
+                  done={(j) => (j.queued ? `${j.queued} startups queued for v${j.version} · Run now to score them` : "Every startup in window is on the active thesis")} />
               </div>
             ) : null}
           </section>

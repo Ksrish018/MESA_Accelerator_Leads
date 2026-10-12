@@ -347,3 +347,66 @@ hr.hair { border: 0; border-top: 1px solid var(--hair); margin: 24px 0; }
   .actionbar.sticky-mobile { gap: 6px; }
   .actionbar.sticky-mobile .btn { padding: 0 12px; font-size: 14px; }
 }
+
+/* ---------- Pipeline flow ---------- */
+.wrap-wide { max-width: 1440px; }
+.flow { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0; align-items: stretch; }
+.flow-cell { display: flex; align-items: stretch; min-width: 0; }
+.stage {
+  flex: 1; min-width: 0; display: flex; flex-direction: column; background: var(--card); border: 1px solid var(--hair);
+  border-radius: var(--r-card); box-shadow: var(--shadow); padding: 16px; transition: border-color 300ms var(--ease), box-shadow 300ms var(--ease), opacity 300ms;
+}
+.stage-idle { opacity: 0.55; }
+.stage-active { border-color: var(--accent); animation: stage-pulse 2.4s ease-in-out infinite; }
+@keyframes stage-pulse { 0%, 100% { box-shadow: var(--shadow), 0 0 0 0 rgba(0, 113, 227, 0.28); } 50% { box-shadow: var(--shadow), 0 0 0 6px rgba(0, 113, 227, 0); } }
+.stage-head { display: flex; flex-direction: column; gap: 2px; padding-bottom: 12px; border-bottom: 1px solid var(--hair); }
+.stage-n { font-family: var(--font-display); font-size: 36px; font-weight: 600; letter-spacing: -0.03em; line-height: 1.05; }
+.stage-list { list-style: none; margin: 0; padding: 8px 0 0; max-height: 440px; overflow-y: auto; overscroll-behavior: contain; display: flex; flex-direction: column; gap: 2px; }
+.stage-list li { display: flex; gap: 8px; align-items: flex-start; padding: 7px 4px; border-radius: 10px; font-size: 13.5px; line-height: 1.35; }
+.stage-list li:hover { background: var(--bg-2); }
+.stage-list a { word-break: break-word; }
+.clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.glide { animation: glide 450ms var(--ease) both; }
+@keyframes glide { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: none; } }
+.dot { width: 8px; height: 8px; border-radius: 999px; flex: none; margin-top: 5px; background: var(--hair-strong); }
+.dot-ok { background: #34a853; } .dot-bad { background: #d93025; } .dot-idle { background: var(--hair-strong); }
+.tone-green { color: var(--chip-green); } .tone-grey { color: var(--muted); } .tone-red { color: var(--chip-red); } .tone-blue { color: var(--chip-blue); }
+
+.connector { position: relative; width: 28px; flex: none; align-self: center; height: 8px; }
+.connector svg { width: 100%; height: 100%; overflow: visible; }
+.connector line { stroke: var(--hair-strong); stroke-width: 2; stroke-dasharray: 3 5; vector-effect: non-scaling-stroke; }
+.connector-reached line { stroke: var(--accent); opacity: 0.55; }
+.connector-live line { stroke: var(--accent); opacity: 1; animation: dash 0.9s linear infinite; }
+@keyframes dash { to { stroke-dashoffset: -16; } }
+.spark { position: absolute; top: 50%; left: 0; width: 6px; height: 6px; margin-top: -3px; border-radius: 999px; background: var(--accent); opacity: 0; box-shadow: 0 0 10px 2px rgba(0, 113, 227, 0.55); }
+.connector-live .spark { animation: spark 1.6s var(--ease) infinite; }
+@keyframes spark { 0% { left: -4px; opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { left: calc(100% - 2px); opacity: 0; } }
+
+.live-dot::before { content: ""; width: 7px; height: 7px; border-radius: 999px; background: currentColor; margin-right: 4px; animation: live 1.4s ease-in-out infinite; }
+@keyframes live { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
+
+@media (max-width: 1100px) {
+  .flow { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: 16px; }
+  .flow-cell:nth-child(3) .connector { display: none; }
+}
+@media (max-width: 760px) {
+  .flow { grid-template-columns: 1fr; row-gap: 0; }
+  .flow-cell { flex-direction: column; }
+  .flow-cell:nth-child(3) .connector { display: block; }
+  .connector { width: 8px; height: 24px; align-self: center; }
+  .connector svg { transform: rotate(90deg); width: 24px; height: 8px; position: absolute; left: -8px; top: 8px; }
+  .connector-live .spark { animation-name: spark-v; }
+  @keyframes spark-v { 0% { top: 0; opacity: 0; } 20% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+  .spark { left: 1px; }
+  .stage-list { max-height: 260px; }
+}
+
+/* ---------- Today live strip ---------- */
+.strip { padding: 16px 20px; }
+.strip-track { height: 3px; border-radius: 999px; background: var(--bg-2); overflow: hidden; margin: 12px 0; }
+.strip-track > span { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), #5ac8fa, var(--accent)); background-size: 200% 100%; animation: strip-flow 1.6s linear infinite; border-radius: 999px; transition: width 600ms var(--ease); }
+@keyframes strip-flow { to { background-position: -200% 0; } }
+.strip-stages { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; }
+.strip-stage { position: relative; display: flex; flex-direction: column; }
+.strip-arrow { position: absolute; right: -2px; top: 4px; color: var(--muted); font-style: normal; }
+@media (max-width: 560px) { .strip-stages { grid-template-columns: repeat(3, 1fr); row-gap: 12px; } .strip-arrow { display: none; } }
