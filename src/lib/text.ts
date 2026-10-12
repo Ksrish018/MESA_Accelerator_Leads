@@ -82,7 +82,12 @@ export function truncate(s: string, n: number): string {
   return s.length <= n ? s : `${s.slice(0, n - 1)}…`;
 }
 
-const SKIP_LINK = /(facebook|twitter|x\.com|linkedin|instagram|youtube|youtu\.be|whatsapp|t\.me|telegram|pinterest|reddit|google\.|apple\.com|play\.google|feedburner|wp\.me|gravatar|disqus|mailto:|javascript:)/i;
+const SKIP_LINK = /(facebook|twitter|x\.com|linkedin|instagram|youtube|youtu\.be|whatsapp|t\.me|telegram|pinterest|reddit|google\.|apple\.com|play\.google|feedburner|wp\.me|gravatar|disqus|mstdn|mastodon|threads\.net|bsky\.app|bit\.ly|tinyurl|lnkd\.in|crunchbase\.com|mailto:|javascript:)/i;
+
+/** A social profile or link shortener is never a company website. */
+export function isSocialOrShortener(url: string | null | undefined): boolean {
+  return !!url && SKIP_LINK.test(url);
+}
 
 /**
  * Outbound links printed in an article, as "Anchor (https://site)" lines.

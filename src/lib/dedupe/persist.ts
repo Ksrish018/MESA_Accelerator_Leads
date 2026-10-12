@@ -2,7 +2,7 @@ import "server-only";
 import { db, must } from "../db";
 import { amountsConflict, parseAmount } from "../extract/amount";
 import { mapStage } from "../extract/stage";
-import { domainOf } from "../text";
+import { domainOf, isSocialOrShortener } from "../text";
 import { earliestCredible } from "../thesis/window";
 import type { ExtractedRound, Stage } from "../types";
 import type { VerifiedRound } from "../verify/quotes";
@@ -57,6 +57,7 @@ export async function persistRound(article: ArticleRef, vr: VerifiedRound, ctx: 
 
   const stage = mapStage(r.stage_text, ctx.stageMap);
   const amount = parseAmount(r.amount_text, ctx.usdInrRate);
+  if (isSocialOrShortener(r.website)) r.website = null;
   const websiteDomain = domainOf(r.website);
   const match = matchStartup({ name: r.company, website_domain: websiteDomain }, ctx.known);
 
@@ -67,8 +68,15 @@ export async function persistRound(article: ArticleRef, vr: VerifiedRound, ctx: 
 
   if (match.kind === "match") {
     startupId = match.id;
-    const existing = must(await supa.from("rounds").select("id").eq("startup_id", startupId).eq("article_id", article.id), "find round");
-    if ((existing as unknown[]).length) return "duplicate_article";
+    const existing = must(await supa.from("rounds").select("id, website, quotes").eq("startup_id", startupId).eq("article_id", article.id), "find round") as { id: string; website: string | null; quotes: Record<string, string> }[];
+    if (existing.length) {
+      // Re-read article: keep a newly found website (quote-checked) and re-check the lead (T3).
+      if (websiteDomain && !existing[0].website) {
+        await supa.from("rounds").update({ website: r.website, quotes: { ...(existing[0].quotes ?? {}), website: r.quotes.website } }).eq("id", existing[0].id);
+        await recomputeStartup(startupId, ctx, true);
+      }
+      return "duplicate_article";
+    }
     outcome = "more_coverage";
   } else {
     if (match.kind === "possible_duplicate") flags.push("Possible duplicate");
