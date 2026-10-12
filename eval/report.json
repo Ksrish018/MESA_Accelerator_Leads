@@ -1,0 +1,114 @@
+{
+  "run_at": "2026-10-12T08:57:24.413Z",
+  "model": "gemini-3.8-flash",
+  "passed": "14/15",
+  "extraction_precision": 1,
+  "extraction_recall": 1,
+  "stage_accuracy": 1,
+  "results": [
+    {
+      "id": "01-clear-seed-india",
+      "pass": true,
+      "notes": [
+        "Orbitly: seed · pass"
+      ]
+    },
+    {
+      "id": "02-clear-pre-seed-india",
+      "pass": true,
+      "notes": [
+        "Stackwise: pre_seed · pass"
+      ]
+    },
+    {
+      "id": "03-trap-series-a-mentions-seed",
+      "pass": true,
+      "notes": [
+        "Paylane: other · fail · Stage: Series A"
+      ]
+    },
+    {
+      "id": "04-trap-pre-series-a",
+      "pass": true,
+      "notes": [
+        "Fieldnote: other · fail · Stage: pre-Series A"
+      ]
+    },
+    {
+      "id": "05-trap-weekly-roundup",
+      "pass": true,
+      "notes": [
+        "Vexa: seed · pass",
+        "Glowkin: pre_seed · fail · Excluded sector: consumer D2C brands",
+        "Shipwise: other · fail · Stage: Series B"
+      ]
+    },
+    {
+      "id": "06-trap-three-outlets-one-round",
+      "pass": false,
+      "notes": [
+        "2 startups, expected 1"
+      ]
+    },
+    {
+      "id": "07-trap-inr-usd-conflict",
+      "pass": true,
+      "notes": [
+        "$2840909 vs $1300000"
+      ]
+    },
+    {
+      "id": "08-trap-already-contacted",
+      "pass": true,
+      "notes": [
+        "Credfix: seed · fail · Already contacted"
+      ]
+    },
+    {
+      "id": "09-trap-injected-instruction",
+      "pass": true,
+      "notes": [
+        "Tidepool: seed · pass",
+        "injection_suspected"
+      ]
+    },
+    {
+      "id": "10-signal-use-of-funds",
+      "pass": true,
+      "notes": [
+        "Clinicly: seed · pass"
+      ]
+    },
+    {
+      "id": "11-trap-debt-only",
+      "pass": true,
+      "notes": [
+        "Ledgerly: other · fail · Debt-only round"
+      ]
+    },
+    {
+      "id": "12-trap-banned-phrase-draft",
+      "pass": true,
+      "notes": [
+        "Banned phrase: \"i hope this email finds you well\"; Banned phrase: \"i came across\"; Banned phrase: \"exciting\""
+      ]
+    },
+    {
+      "id": "13-clear-global-press-release",
+      "pass": true,
+      "notes": [
+        "Quarry Labs: seed · fail · Outside geography: SAN FRANCISCO"
+      ]
+    },
+    {
+      "id": "14-trap-acquisition",
+      "pass": true,
+      "notes": []
+    },
+    {
+      "id": "15-trap-fund-launch",
+      "pass": true,
+      "notes": []
+    }
+  ]
+}

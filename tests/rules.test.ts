@@ -68,6 +68,8 @@ describe("name normalisation and fuzzy match", () => {
     expect(normalizeName("Credfix Technologies Pvt Ltd")).toBe("credfix");
     expect(normalizeName("The Dough Therapy")).toBe("thedoughtherapy");
     expect(normalizeName("Acme Inc.")).toBe("acme");
+    expect(normalizeName("Desible AI Pvt Ltd")).toBe("desible");
+    expect(normalizeName("AI")).toBe("ai");
   });
   it("similarity", () => {
     expect(nameSimilarity("TailBlaze", "Tailblaze")).toBe(1);

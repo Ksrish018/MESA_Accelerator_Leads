@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "tsc --noEmit",
     "test": "vitest run",
-    "eval": "tsx eval/run.ts"
+    "eval": "tsx --conditions=react-server --env-file-if-exists=.env.local eval/run.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.117.3",

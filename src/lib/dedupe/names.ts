@@ -3,7 +3,7 @@
 const SUFFIXES = [
   "private limited", "pvt ltd", "pvt. ltd.", "pvt. ltd", "pvt", "limited", "ltd", "llp", "llc", "inc", "inc.",
   "corp", "corporation", "co", "gmbh", "technologies", "technology", "tech", "labs", "lab", "solutions",
-  "ventures", "india", "global", "hq",
+  "ventures", "india", "global", "hq", "ai",
 ];
 
 export function normalizeName(name: string): string {
