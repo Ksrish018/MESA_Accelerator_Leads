@@ -184,7 +184,7 @@ export function ReviewClient({ v, sample = false }: { v: ReviewView; sample?: bo
               <DayChip day={c.day} windowDays={c.windowDays} closing={c.closing} daysLeft={c.daysLeft} />
               <Chip label={c.confidenceLabel} />
               {c.olderThesis ? <Chip label="Older thesis" /> : null}
-              {c.flags.map((f) => <Chip key={f} label={f} />)}
+              {c.flags.filter((f) => f !== "One source").map((f) => <Chip key={f} label={f} />)}
             </div>
             {c.olderThesis && !decided && !sample ? (
               <div className="row" style={{ marginTop: 12 }}>
