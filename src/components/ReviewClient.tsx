@@ -93,7 +93,7 @@ export function ReviewClient({ v, sample = false }: { v: ReviewView; sample?: bo
       const j = await post(`/api/startups/${id}/approve`, { subject, body, recipient: to, mode });
       if (j.fallback) { setFallback(j.composeUrl); return; }
       toast({
-        text: mode === "manual" ? "Marked as drafted" : j.recipientMissing ? "Saved to Gmail Drafts · Add recipient in Gmail" : "Saved to Gmail Drafts",
+        text: mode === "manual" ? "Marked as drafted" : `${j.updated ? "Updated in Gmail Drafts" : "Saved to Gmail Drafts"}${j.recipientMissing ? " · Add recipient in Gmail" : ""}`,
         actions: [
           ...(mode === "manual" ? [] : [{ label: "Open", href: "https://mail.google.com/mail/u/0/#drafts" }]),
           { label: "Undo", onClick: () => undo("Approve") },
@@ -275,6 +275,7 @@ export function ReviewClient({ v, sample = false }: { v: ReviewView; sample?: bo
             <h2 className="eyebrow">Draft</h2>
             <span className="tiny muted" aria-live="polite">{saved === "saving" ? "Saving" : saved === "saved" ? "Saved" : saved === "error" ? "Not saved" : ""}</span>
           </div>
+          {!decided && !sample && v.draft?.gmail_draft_id ? <div className="row"><Chip label="In Gmail Drafts" /><span className="tiny muted">Approve saves your edits to it</span></div> : null}
           {decided ? <p className="small muted" style={{ margin: 0 }}>{v.outreach?.status === "skipped" ? `Skipped · ${v.outreach?.note ?? ""}` : "Already contacted"}</p> : null}
           {v.draft ? (
             <>

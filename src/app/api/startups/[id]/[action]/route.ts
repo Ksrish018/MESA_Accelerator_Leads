@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { db, must } from "@/lib/db";
 import { composeUrl } from "@/lib/gmail/compose";
-import { createDraft, deleteDraft, gmailConfigured } from "@/lib/gmail/gmail";
+import { createDraft, deleteDraft, draftExists, gmailConfigured, updateDraft } from "@/lib/gmail/gmail";
+import { autoDrafts, existingGmailId, removeGmailDraft, syncGmailDraft } from "@/lib/gmail/auto";
 import { draftStartup, evaluateStartup } from "@/lib/runs/evaluate";
 import { domainOf } from "@/lib/text";
 import { activeThesis, loadSettings, loadStageMap } from "@/lib/thesis/load";
@@ -50,10 +51,19 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         const manual = body.mode === "manual";
 
         let gmailId: string | null = null;
+        let updated = false;
         let fallback = false;
         if (!manual && gmailConfigured()) {
           try {
-            gmailId = (await createDraft({ to: recipient, subject, body: text })).id;
+            // The morning run already put this draft in Gmail: save Rohit's edits into it. Otherwise create it.
+            const prior = d.gmail_draft_id ?? (await existingGmailId(id));
+            if (prior && (await draftExists(prior))) {
+              await updateDraft(prior, { to: recipient, subject, body: text });
+              gmailId = prior;
+              updated = true;
+            } else {
+              gmailId = (await createDraft({ to: recipient, subject, body: text })).id;
+            }
           } catch {
             fallback = true;
           }
@@ -63,11 +73,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         if (fallback) {
           return NextResponse.json({ fallback: true, composeUrl: composeUrl({ to: recipient, subject, body: text }) }, { status: 200 });
         }
-        must(await supa.from("outreach").insert({ startup_id: id, status: "drafted", by: "rohit", at: now, gmail_draft_id: gmailId, note: manual ? "Copied or opened in Gmail" : null }), "record outreach");
+        must(await supa.from("outreach").insert({ startup_id: id, status: "drafted", by: "rohit", at: now, gmail_draft_id: gmailId, note: manual ? "Copied or opened in Gmail" : updated ? "Approved · Gmail draft updated" : null }), "record outreach");
         await supa.from("drafts").update({ subject, body: text, recipient, status: "approved", gmail_draft_id: gmailId, approved_at: now, updated_at: now }).eq("id", d.id);
         await supa.from("startups").update({ status: "drafted", updated_at: now }).eq("id", id);
         await log(id, "approved", gmailId ? "Saved to Gmail Drafts" : "Copied or opened in Gmail");
-        return NextResponse.json({ ok: true, gmailDraftId: gmailId, recipientMissing: !recipient });
+        return NextResponse.json({ ok: true, gmailDraftId: gmailId, updated, recipientMissing: !recipient });
       }
 
       /** Undo within 10 s: delete the Gmail draft and the outreach record. */
@@ -75,10 +85,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         const o = (await supa.from("outreach").select("*").eq("startup_id", id).maybeSingle()).data as Record<string, any> | null;
         if (!o) return NextResponse.json({ ok: true });
         if (Date.now() - new Date(o.at).getTime() > 60_000) return NextResponse.json({ error: "Undo window passed" }, { status: 409 });
-        if (o.gmail_draft_id) await deleteDraft(o.gmail_draft_id);
+        const keepGmail = String(o.note ?? "").includes("Gmail draft updated");
+        if (o.gmail_draft_id && !keepGmail) await deleteDraft(o.gmail_draft_id);
         await supa.from("outreach").delete().eq("startup_id", id);
         const d = await latestDraft(id);
-        if (d) await supa.from("drafts").update({ status: "draft", gmail_draft_id: null, approved_at: null }).eq("id", d.id);
+        if (d) await supa.from("drafts").update({ status: "draft", gmail_draft_id: keepGmail ? o.gmail_draft_id : null, approved_at: null }).eq("id", d.id);
+        // Undoing a Skip puts the morning draft back in Gmail.
+        if (o.status === "skipped" && d && autoDrafts()) await syncGmailDraft({ ...(d as any), gmail_draft_id: null });
         await supa.from("startups").update({ status: "fit", updated_at: now }).eq("id", id);
         await log(id, "undo", o.status === "skipped" ? "Skip undone" : "Approve undone");
         return NextResponse.json({ ok: true });
@@ -88,6 +101,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
         const reason = SKIP_REASONS.includes(body.reason ?? "") ? body.reason! : "Other";
         const note = (body.note ?? "").slice(0, 300) || null;
         await supa.from("outreach").upsert({ startup_id: id, status: "skipped", by: "rohit", at: now, note: note ? `${reason}: ${note}` : reason });
+        await removeGmailDraft(id);
         const d = await latestDraft(id);
         if (d) await supa.from("drafts").update({ status: "skipped", updated_at: now }).eq("id", d.id);
         await supa.from("startups").update({ status: "skipped", updated_at: now }).eq("id", id);
@@ -115,6 +129,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       /** "Not seed / wrong company": the extraction was wrong. Feeds the eval set. */
       case "wrong": {
         await supa.from("startups").update({ status: "filtered", filter_reason: "Marked wrong extraction", needs_eval: false, updated_at: now }).eq("id", id);
+        await removeGmailDraft(id);
         await supa.from("decisions").insert({ startup_id: id, action: "wrong_extraction", reason: body.reason ?? "Not seed / wrong company", actor: "rohit" });
         return NextResponse.json({ ok: true });
       }

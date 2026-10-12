@@ -142,7 +142,7 @@ export function Help() {
                 <dt style={{ fontWeight: 600 }}>Sources</dt>
                 <dd style={{ margin: "2px 0 12px" }} className="muted">Supabase table <code>sources</code></dd>
                 <dt style={{ fontWeight: 600 }}>Drafts</dt>
-                <dd style={{ margin: "2px 0 12px" }} className="muted">Your Gmail Drafts folder</dd>
+                <dd style={{ margin: "2px 0 12px" }} className="muted">Your Gmail Drafts folder: one per Fit, created each morning. Nothing is ever sent.</dd>
                 <dt style={{ fontWeight: 600 }}>Accelerator details</dt>
                 <dd style={{ margin: "2px 0 0" }} className="muted">Supabase table <code>settings</code></dd>
               </dl>

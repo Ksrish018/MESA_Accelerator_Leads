@@ -21,9 +21,12 @@ export const CHIP_HELP: Record<string, { tone: string; help: string }> = {
   "In another accelerator": { tone: "amber", help: "A source says the company is already in an accelerator." },
   "Unverified facts dropped": { tone: "grey", help: "Facts without a matching quote were removed." },
   "Already contacted": { tone: "grey", help: "An outreach record exists. Never drafted again." },
+  "In Gmail Drafts": { tone: "violet", help: "The draft is already in your Gmail Drafts folder. Approve saves your edits there." },
+  "Left Drafts · Sent?": { tone: "violet", help: "The draft left Gmail Drafts, so it was sent or deleted. Never drafted again." },
+  "Stage undisclosed": { tone: "amber", help: "No source states the stage. The amount is inside the thesis range." },
 };
 
-export const HELP_ORDER = ["Closing", "Worth a look", "One source", "Conflicting amounts", "Older thesis", "Find contact", "Sample"];
+export const HELP_ORDER = ["Closing", "Worth a look", "In Gmail Drafts", "Stage undisclosed", "One source", "Conflicting amounts", "Older thesis", "Find contact", "Left Drafts · Sent?", "Sample"];
 
 export function chipMeta(label: string): { tone: string; help: string | null } {
   if (label.startsWith("Warm path")) return { tone: CHIP_HELP["Warm path"].tone, help: CHIP_HELP["Warm path"].help };

@@ -21,7 +21,7 @@ export function buildFacts(
     const q = (r.quotes ?? {}) as Record<string, string>;
     const src = r.source_url as string;
     const by = r.publisher ? ` (${r.publisher})` : "";
-    if (r.stage_text) add(`${p}.stage`, `${startup.name} raised a ${r.stage_text} round${by}`, src, q.stage_text ?? null);
+    if (r.stage_text && r.stage !== "unknown") add(`${p}.stage`, `${startup.name} raised a ${r.stage_text} round${by}`, src, q.stage_text ?? null);
     if (r.amount_text) add(`${p}.amount`, `The round was ${r.amount_text}`, src, q.amount_text ?? null);
     if (r.investors?.length) add(`${p}.investors`, `Investors: ${r.investors.join(", ")}`, src, q.investors ?? null);
     if (r.lead_investor) add(`${p}.lead`, `Led by ${r.lead_investor}`, src, q.lead_investor ?? null);

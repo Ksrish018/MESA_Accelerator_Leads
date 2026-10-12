@@ -74,12 +74,14 @@ function groupBy<T extends Record<string, any>>(rows: T[], key: string): Map<str
 export async function buildCards(startups: Record<string, any>[]): Promise<CardView[]> {
   const [thesis, settings] = await Promise.all([activeThesis(), loadSettings()]);
   const ids = startups.map((s) => s.id);
-  const [rounds, scores, research, signals] = await Promise.all([
+  const [rounds, scores, research, signals, gmail] = await Promise.all([
     inIds<Record<string, any>>("rounds", "startup_id", ids, "*"),
     inIds<Record<string, any>>("scores", "startup_id", ids, "*", "created_at"),
     inIds<Record<string, any>>("research", "startup_id", ids, "startup_id, url, description, contacts"),
     inIds<Record<string, any>>("signals", "startup_id", ids, "startup_id, name, grp"),
+    inIds<Record<string, any>>("drafts", "startup_id", ids, "startup_id, gmail_draft_id, status"),
   ]);
+  const inGmail = new Set(gmail.filter((d) => d.gmail_draft_id && d.status === "draft").map((d) => d.startup_id));
   const R = groupBy(rounds, "startup_id");
   const S = groupBy(scores, "startup_id");
   const W = groupBy(research, "startup_id");
@@ -101,6 +103,7 @@ export async function buildCards(startups: Record<string, any>[]): Promise<CardV
     if (sig.some((x) => x.name === "traction_customers")) chips.push({ key: "named_customers", label: "Named customers" });
     if (sig.some((x) => x.name === "use_of_funds")) chips.push({ key: "use_of_funds", label: "Use of funds" });
     if (warm) chips.push({ key: "warm", label: `Warm path · ${warm}` });
+    if (inGmail.has(s.id) && s.status === "fit") chips.push({ key: "gmail", label: "In Gmail Drafts" });
     const criteria = ((sc?.criteria ?? []) as CriterionScore[])
       .filter((c) => c.evidence_quote && c.score_0_5 > 0)
       .sort((a, b) => b.score_0_5 * b.weight - a.score_0_5 * a.weight)

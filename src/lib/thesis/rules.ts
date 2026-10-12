@@ -12,6 +12,7 @@ export interface RuleInput {
   announced_at: string | Date | null;
   contacted: boolean;
   has_credible_source: boolean; // at least one Tier 1 or 2 source
+  amount_usd?: number | null; // lets an undisclosed-stage round in the thesis range be scored instead of parked
 }
 
 export type RuleResult =
@@ -80,10 +81,15 @@ export function applyHardRules(input: RuleInput, thesis: Thesis, now: Date = new
     if (thesis.disqualifiers.includes(ev)) return { pass: false, rule: ev, reason: NEGATIVE_LABEL[ev] ?? ev };
   }
 
+  // Undisclosed stage: score it (flagged) when the stated amount is inside the thesis range; otherwise park it
+  // until a source states the stage (T3). The stage itself is never inferred.
+  let stageUndisclosed = false;
   if (input.stage === "unknown") {
-    return { pass: false, rule: "stage_unclear", reason: "Stage undisclosed", park: true };
-  }
-  if (!thesis.stages.includes(input.stage)) {
+    const amt = input.amount_usd ?? null;
+    const inRange = amt != null && amt > 0 && (thesis.max_round_usd == null || amt <= thesis.max_round_usd);
+    if (!inRange) return { pass: false, rule: "stage_unclear", reason: "Stage undisclosed", park: true };
+    stageUndisclosed = true;
+  } else if (!thesis.stages.includes(input.stage)) {
     const label = input.stage_text?.trim() ? input.stage_text.trim() : "later stage";
     return { pass: false, rule: "stage", reason: `Stage: ${label}` };
   }
@@ -98,5 +104,6 @@ export function applyHardRules(input: RuleInput, thesis: Thesis, now: Date = new
 
   const flags: string[] = [];
   if (!input.location?.trim()) flags.push("Location unclear");
+  if (stageUndisclosed) flags.push("Stage undisclosed");
   return { pass: true, flags };
 }

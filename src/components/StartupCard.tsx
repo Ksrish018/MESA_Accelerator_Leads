@@ -40,7 +40,7 @@ export function StartupCard({ c, index, href, sample = false }: { c: CardView; i
           <Chip label={c.confidenceLabel} />
           {c.chips.map((x) => <Chip key={x.key} label={x.label} />)}
           {c.olderThesis ? <Chip label="Older thesis" /> : null}
-          {c.flags.filter((f) => ["Conflicting amounts", "Find contact", "In another accelerator", "Possible duplicate", "Injection suspected", "Conflicting stage"].includes(f)).map((f) => <Chip key={f} label={f} />)}
+          {c.flags.filter((f) => ["Stage undisclosed", "Conflicting amounts", "Find contact", "In another accelerator", "Possible duplicate", "Injection suspected", "Conflicting stage"].includes(f)).map((f) => <Chip key={f} label={f} />)}
         </div>
         {c.topCriteria.length ? (
           <div className="stack-8" style={{ marginTop: 4 }}>

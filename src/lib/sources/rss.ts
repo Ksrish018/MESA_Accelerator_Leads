@@ -1,5 +1,5 @@
 import { XMLParser } from "fast-xml-parser";
-import { decodeEntities, htmlToText } from "../text";
+import { decodeEntities, domainOf, extractLinks, htmlToText } from "../text";
 
 export interface FeedItem {
   title: string;
@@ -39,6 +39,10 @@ function toIso(s: string): string | null {
   return Number.isNaN(d.getTime()) ? null : d.toISOString();
 }
 
+function withLinks(text: string, links: string[]): string {
+  return links.length ? `${text}\nLinks in article:\n${links.join("\n")}` : text;
+}
+
 /** Parses RSS 2.0 and Atom into a flat list. Keeps only what PRD §5.2 allows. */
 export function parseFeed(xml: string): FeedItem[] {
   const doc = parser.parse(xml);
@@ -58,7 +62,7 @@ export function parseFeed(xml: string): FeedItem[] {
         link: link.trim(),
         published_at: toIso(text(o.pubDate ?? o.published ?? o.updated ?? o["dc:date"])),
         summary: htmlToText(descHtml).slice(0, 2000),
-        content: contentHtml ? htmlToText(contentHtml).slice(0, 20000) : null,
+        content: contentHtml ? withLinks(htmlToText(contentHtml).slice(0, 20000), extractLinks(contentHtml, domainOf(link))) : null,
         publisher: src ? text(src) || null : null,
         publisher_url: src && typeof src === "object" ? (text((src as Record<string, unknown>)["@_url"]) || null) : null,
       };

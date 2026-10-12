@@ -81,3 +81,26 @@ export function hostMatches(host: string, domain: string): boolean {
 export function truncate(s: string, n: number): string {
   return s.length <= n ? s : `${s.slice(0, n - 1)}…`;
 }
+
+const SKIP_LINK = /(facebook|twitter|x\.com|linkedin|instagram|youtube|youtu\.be|whatsapp|t\.me|telegram|pinterest|reddit|google\.|apple\.com|play\.google|feedburner|wp\.me|gravatar|disqus|mailto:|javascript:)/i;
+
+/**
+ * Outbound links printed in an article, as "Anchor (https://site)" lines.
+ * Lets extraction read a company website the article actually links to;
+ * the lines are part of the source text, so the quote check still applies.
+ */
+export function extractLinks(html: string, ownHost: string | null, max = 20): string[] {
+  const out = new Map<string, string>();
+  for (const m of html.matchAll(/<a\b[^>]*href=["']([^"'#]+)["'][^>]*>([\s\S]*?)<\/a>/gi)) {
+    const href = decodeEntities(m[1]).trim();
+    const text = htmlToText(m[2]).slice(0, 60);
+    if (!/^https?:\/\//i.test(href) || SKIP_LINK.test(href) || text.length < 2) continue;
+    const host = domainOf(href);
+    if (!host || (ownHost && hostMatches(host, ownHost))) continue;
+    let origin: string;
+    try { origin = new URL(href).origin; } catch { continue; }
+    if (!out.has(origin)) out.set(origin, `${text} (${origin})`);
+    if (out.size >= max) break;
+  }
+  return [...out.values()];
+}

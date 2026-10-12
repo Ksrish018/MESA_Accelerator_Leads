@@ -74,6 +74,16 @@ export async function createDraft(opts: { to: string | null; subject: string; bo
   return { id: json.id, messageId: json.message?.id ?? null };
 }
 
+/** users.drafts.update: replace the content of an existing draft (Approve with edits, Regenerate). */
+export async function updateDraft(id: string, opts: { to: string | null; subject: string; body: string }): Promise<void> {
+  const raw = b64url(buildMime({ from: env.google().sender, ...opts }));
+  const res = await call(`/${encodeURIComponent(id)}`, { method: "PUT", body: JSON.stringify({ id, message: { raw } }) });
+  if (!res.ok) {
+    const json = (await res.json().catch(() => ({}))) as { error?: { message?: string } };
+    throw new Error(`Gmail drafts.update failed: ${json.error?.message ?? res.status}`);
+  }
+}
+
 /** users.drafts.get: true if the draft still exists in Drafts. */
 export async function draftExists(id: string): Promise<boolean> {
   const res = await call(`/${encodeURIComponent(id)}?format=minimal`, { method: "GET" });

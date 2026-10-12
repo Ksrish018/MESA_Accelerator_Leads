@@ -3,6 +3,7 @@ import { db, must } from "../db";
 import { writeDraft } from "../draft/draft";
 import { mapStage } from "../extract/stage";
 import { researchStartup, type ResearchRow } from "../research/research";
+import { syncGmailDraft } from "../gmail/auto";
 import { BUCKET_LABEL } from "../score/buckets";
 import { buildFacts } from "../score/facts";
 import { scoreStartup } from "../score/score";
@@ -55,13 +56,16 @@ export async function draftStartup(startupId: string, ctx: EvalCtx, criteria?: C
     runId: ctx.runId, name: b.startup.name, facts, criteria, rounds: b.rounds, thesis: ctx.thesis, settings: ctx.settings,
   });
   const recipient = b.research?.contacts?.[0]?.address ?? null;
-  return must(
+  const row = must(
     await supa.from("drafts").insert({
       startup_id: startupId, subject: d.subject, body: d.body, recipient, greeting_name: d.greeting_name,
       claims: d.claims, facts: d.facts, lint_errors: d.lint_errors, status: "draft",
     }).select("*").single(),
     "save draft",
-  );
+  ) as Record<string, any>;
+  // Morning drafts wait in Gmail: create this startup's Gmail draft, or update the one it already has.
+  const gmailId = await syncGmailDraft(row as any);
+  return { ...row, gmail_draft_id: gmailId ?? row.gmail_draft_id };
 }
 
 /**
@@ -82,6 +86,7 @@ export async function evaluateStartup(startupId: string, ctx: EvalCtx): Promise<
 
   const { stage, stage_text } = combinedStage(rounds, ctx.stageMap);
   const negatives = [...new Set(rounds.flatMap((r) => r.negative_events ?? []))] as NegativeEvent[];
+  const amountUsd = rounds.map((r) => Number(r.amount_usd_est)).find((x) => x > 0) ?? null;
   const rule = s.rescued
     ? ({ pass: true, flags: [] } as const)
     : applyHardRules(
@@ -89,6 +94,7 @@ export async function evaluateStartup(startupId: string, ctx: EvalCtx): Promise<
           stage, stage_text, negative_events: negatives, sector_words: s.sector_words ?? [], location: s.location,
           announced_at: s.first_announced_at, contacted: !!outreach,
           has_credible_source: rounds.some((r) => r.publisher_tier != null && r.publisher_tier <= 2),
+          amount_usd: amountUsd,
         },
         ctx.thesis,
       );
@@ -103,8 +109,6 @@ export async function evaluateStartup(startupId: string, ctx: EvalCtx): Promise<
   const founderNames = rounds.flatMap((r) => (r.founders ?? []).map((f: any) => f.name));
   const research = await researchStartup(s as any, founderNames);
   const facts = buildFacts(s as { name: string }, rounds, research.ok ? research : null);
-  const amountUsd = rounds.map((r) => Number(r.amount_usd_est)).find((x) => x > 0) ?? null;
-
   const scored = await scoreStartup({ runId: ctx.runId, name: s.name, facts, thesis: ctx.thesis, settings: ctx.settings, amountUsd, location: s.location });
   await supa.from("scores").insert({
     startup_id: startupId, thesis_version: ctx.thesis.version, criteria: scored.criteria, total: scored.total, bucket: scored.bucket,

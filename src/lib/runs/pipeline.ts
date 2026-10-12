@@ -6,11 +6,12 @@ import { extractArticle } from "../extract/extract";
 import { GeminiError } from "../gemini";
 import { fetchPage } from "../sources/fetch";
 import { ingestSources } from "../sources/ingest";
-import { htmlToText, truncate } from "../text";
+import { domainOf, extractLinks, htmlToText, truncate } from "../text";
 import { activeThesis, loadSettings, loadStageMap } from "../thesis/load";
 import { windowInfo } from "../thesis/window";
 import { verifyRound } from "../verify/quotes";
 import { evaluateStartup } from "./evaluate";
+import { gmailStep } from "../gmail/auto";
 
 /**
  * Staged, resumable pipeline (PRD §5.1). Each call claims the run, works in
@@ -86,8 +87,9 @@ async function articleText(a: Record<string, any>): Promise<string> {
     if (page) {
       const m = page.html.match(/<article[\s\S]*?<\/article>/i);
       const paras = [...(m ? m[0] : page.html).matchAll(/<p[^>]*>([\s\S]*?)<\/p>/gi)].map((x) => htmlToText(x[1])).filter((t) => t.length > 40);
-      const body = paras.join("\n");
-      if (body.length > 300) {
+      const links = extractLinks(m ? m[0] : page.html, domainOf(a.url));
+      const body = paras.join("\n") + (links.length ? `\nLinks in article:\n${links.join("\n")}` : "");
+      if (paras.join("").length > 300) {
         await db().from("articles").update({ body_text: truncate(body, 20000) }).eq("id", a.id);
         return truncate(`${head}\n${body}`, 14000);
       }
@@ -248,6 +250,13 @@ export async function advanceRun(runId: string, budgetMs: number): Promise<RunRo
         else break;
       } else if (run.step === "window") {
         await stepWindow(run);
+        try {
+          const g = await gmailStep();
+          run.counts.gmail_drafts_created = (run.counts.gmail_drafts_created ?? 0) + g.created;
+          run.counts.left_drafts = (run.counts.left_drafts ?? 0) + g.leftDrafts;
+        } catch (e) {
+          recordError(run, "gmail", e);
+        }
         await save(run, { step: "done", status: "done", finished_at: new Date().toISOString() });
       } else {
         break;

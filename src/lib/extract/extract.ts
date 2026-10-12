@@ -79,7 +79,7 @@ Rules:
 - amount_text: the amount exactly as written, with currency and unit (for example "₹5.25 Cr", "$1.3 million"). null if undisclosed.
 - Every non-null or non-empty field needs a verbatim quote copied character for character from the article in quotes.<field>. A quote is the clause or sentence that states the fact (about 6 to 30 words), never a single word, and must exist in the article text exactly.
 - If you cannot quote evidence for a field, set it to null (or an empty list). Never infer, guess or use outside knowledge.
-- website: only a URL or domain printed in the article.
+- website: only the company's own URL or domain printed in the article or listed under "Links in article" against the company's name. Quote that line. Never a news site, investor or social profile.
 - founders: names as published. background: work evidence only (prior company, engineering or domain experience). Never college, degree, age, gender, religion, caste, family or appearance. null if none.
 - sector_words: short phrases the article uses to describe what the company does or its industry.
 - business_model: B2B, B2C or B2B2C only when the article says who the customers are. customer_type likewise.

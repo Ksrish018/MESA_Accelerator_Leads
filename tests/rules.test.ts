@@ -12,7 +12,7 @@ import { comparePriority, confidence, sortByPriority, warmPath } from "@/lib/sco
 import { isFundingCandidate } from "@/lib/sources/prefilter";
 import { extractEmails, rankContacts } from "@/lib/research/contacts";
 import { parseRobots, robotsAllows } from "@/lib/sources/fetch";
-import { canonicalUrl, normalizeTitle } from "@/lib/text";
+import { canonicalUrl, extractLinks, normalizeTitle } from "@/lib/text";
 import { sanitizeFounders } from "@/lib/extract/extract";
 import { makeSession, verifySession } from "@/lib/auth";
 import { buildMime } from "@/lib/gmail/gmail";
@@ -222,7 +222,11 @@ describe("hard rules", () => {
   it("software for an excluded industry is not excluded", () => expect(excludedSector(["SaaS for restaurants and food delivery"], thesis)).toBeNull());
   it("outside geography", () => expect(applyHardRules({ ...base, location: "San Francisco" }, thesis)).toMatchObject({ pass: false, rule: "geography" }));
   it("unknown location is a flag, not a fail", () => expect(applyHardRules({ ...base, location: null }, thesis)).toEqual({ pass: true, flags: ["Location unclear"] }));
-  it("undisclosed stage parks the lead", () => expect(applyHardRules({ ...base, stage: "unknown" }, thesis)).toMatchObject({ pass: false, park: true }));
+  it("undisclosed stage with no amount parks the lead", () => expect(applyHardRules({ ...base, stage: "unknown" }, thesis)).toMatchObject({ pass: false, park: true }));
+  it("undisclosed stage above the thesis range parks the lead", () => expect(applyHardRules({ ...base, stage: "unknown", amount_usd: 10_000_000 }, thesis)).toMatchObject({ pass: false, park: true }));
+  it("undisclosed stage inside the range is scored, flagged, never relabelled", () =>
+    expect(applyHardRules({ ...base, stage: "unknown", amount_usd: 600_000 }, thesis)).toEqual({ pass: true, flags: ["Stage undisclosed"] }));
+  it("a later stage is still filtered even when the amount is small", () => expect(applyHardRules({ ...base, stage: "other", stage_text: "Series A", amount_usd: 600_000 }, thesis).pass).toBe(false));
   it("needs a credible source", () => expect(applyHardRules({ ...base, has_credible_source: false }, thesis)).toMatchObject({ rule: "credibility" }));
 });
 
@@ -239,6 +243,13 @@ describe("global thesis", () => {
     const crit = [...thesis.criteria, { key: "home_market", name: "Home", weight: 10, kind: "geography" as const, description: "" }];
     expect(computeTotal([{ key: "sector_fit", score_0_5: 5 }, { key: "programme_need", score_0_5: 5 }, { key: "progress", score_0_5: 5 }, { key: "team", score_0_5: 5 }, { key: "round_size", score_0_5: 5 }, { key: "home_market", score_0_5: 0 }], crit)).toBe(91);
   });
+});
+
+describe("article links", () => {
+  const html = `<p><a href="https://orbitly.io/about">Orbitly</a> raised money. <a href="https://entrackr.com/x">More</a>
+    <a href="https://twitter.com/orbitly">Twitter</a> <a href="https://blume.vc">Blume Ventures</a> <a href="https://orbitly.io/careers">jobs</a></p>`;
+  it("keeps outbound links as text, one per site, without the publisher or social links", () =>
+    expect(extractLinks(html, "entrackr.com")).toEqual(["Orbitly (https://orbitly.io)", "Blume Ventures (https://blume.vc)"]));
 });
 
 describe("dedupe of raw items", () => {
