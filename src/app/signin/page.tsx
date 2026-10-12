@@ -12,6 +12,7 @@ export default async function SignIn({ searchParams }: { searchParams: Promise<{
         <div className="hero-scrim" />
       </div>
       <div className="signin-inner reveal">
+        <p className="h2" style={{ margin: "0 0 12px", fontWeight: 500, opacity: 0.92 }}>Welcome, Rohit</p>
         <h1 className="display">Funding Radar</h1>
         <form action="/api/auth/signin" method="post">
           <label htmlFor="password" className="sr-only">Password</label>

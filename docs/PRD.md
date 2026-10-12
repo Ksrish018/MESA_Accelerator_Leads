@@ -490,6 +490,7 @@ That totals **≈ $0.17 a day (≈ ₹14)**, or about ₹430 a month. The Runs p
 ### 10.4 Content rules: professional, clean, relevant data only
 AI-built products tend to fill screens with explanatory or promotional sentences. This product does not.
 1. **Data and actions only.** No sentences about how the system works, the AI, Gemini, the course, the Nine Checks or the pipeline. No taglines, hero slogans, welcome messages, "AI-powered" badges or emojis. (The model name appears once, as a fact, on the Runs page.)
+   - **Sanctioned exception (12 Oct, owner's decision):** the sign-in page shows "Welcome, Rohit" above the product name.
    - **One sanctioned exception: the first-run demo and Help (§10.5).** Their text is instructions for using the product, not a description of it. Each step is at most 15 words, written as what to do.
 2. **Titles are nouns:** Today, Review, Filtered out, Pipeline, Thesis, Runs, Credits. Buttons are verbs: Approve, Skip, Rescue, Regenerate, Run now, Copy.
 3. **Every number has a unit and a time** ("6 new rounds since 06:04 IST"). **Every fact links to its source.**
