@@ -1,7 +1,7 @@
 {
-  "run_at": "2026-10-12T08:57:24.413Z",
+  "run_at": "2026-10-12T09:09:45.766Z",
   "model": "gemini-3.8-flash",
-  "passed": "14/15",
+  "passed": "15/15",
   "extraction_precision": 1,
   "extraction_recall": 1,
   "stage_accuracy": 1,
@@ -45,10 +45,8 @@
     },
     {
       "id": "06-trap-three-outlets-one-round",
-      "pass": false,
-      "notes": [
-        "2 startups, expected 1"
-      ]
+      "pass": true,
+      "notes": []
     },
     {
       "id": "07-trap-inr-usd-conflict",

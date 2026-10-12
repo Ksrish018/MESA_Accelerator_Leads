@@ -2,8 +2,19 @@
 
 Morning outreach drafts for an accelerator's programme lead. Every morning it reads free news and press-release feeds, finds new pre-seed and seed rounds, checks every fact against its source, drops anyone already contacted or outside the 60-day window, scores each startup against a thesis stored in Supabase, and prepares a sourced fact sheet plus a draft email. The programme lead reviews, edits and approves; Approve puts the email in Gmail Drafts. **The system never sends email.**
 
+- **Live URL:** https://funding-radar-sand.vercel.app (password in the submission note; start with the Quick tour)
 - Spec: [`docs/PRD.md`](docs/PRD.md) · Components Map: [`docs/components-map.png`](docs/components-map.png)
-- Live URL: _added after first deploy_
+- Golden set: [`eval/cases.json`](eval/cases.json) · latest report: [`eval/report.json`](eval/report.json) (15/15 pass, extraction precision 1.0, recall 1.0, stage accuracy 1.0)
+
+## Booklet rules and where they are enforced
+
+| Rule | Where |
+|---|---|
+| Gemini Flash for every AI step, no Claude API | `src/lib/gemini.ts` is the only model client (`GEMINI_MODEL`, default `gemini-3.8-flash`); `tests/no-send.test.ts` fails on any other LLM API |
+| Deployed on Vercel with live data | Vercel project `funding-radar`, daily cron `30 0 * * *` (06:00 IST) in `vercel.json`, Run now on Today and Runs |
+| Thesis in Supabase, versioned | `thesis_versions` table; the active row is loaded at run time (`src/lib/thesis/load.ts`); every score stores its `thesis_version` |
+| No duplicate outreach | `outreach` row per company (primary key `startup_id`); Approve refuses a contacted company; hard rule "Already contacted" |
+| Never sends email | Gmail `drafts.create` / `drafts.get` / `drafts.delete` only, scope `gmail.compose`; `tests/no-send.test.ts` scans `src/` |
 
 ## How it works
 
@@ -38,6 +49,18 @@ Code does the checking; Gemini does the reading and writing. Gemini Flash is the
 | `npm test` | Unit tests, including the no-send guard |
 | `npm run eval` | Golden-set evaluation (`eval/cases.json`) |
 | `npm run build` | Production build |
+
+## Screens
+
+Sign-in · Today · Review · Filtered out · Thesis · Runs · Credits · Help (`?`) with the 6-step Quick tour. A labelled Sample startup (`public/demo/sample.json`) is used by the tour only when there is no live Fit; it is never stored or drafted.
+
+## Sources
+
+Live from Vercel on 12 Oct 2026: Entrackr, ET Tech, Inc42, YourStory, TechCrunch Venture, PR Newswire Venture Capital, and two Google News queries (counted only when the original publisher is on the Tier 1–2 allowlist). Moneycontrol (403) and VCCircle (404) are switched off in the `sources` table.
+
+## Imagery
+
+Curated Unsplash photos (Unsplash License), served from `public/images` through `next/image` (AVIF/WebP, under 100 KB per hero). Photographers are credited on `/credits`.
 
 ## Safety
 
