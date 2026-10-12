@@ -24,6 +24,7 @@
   .hum  { background: #FFE2D6; border-color: #E0612F; color: #5A2410; border-width: 2.5px; }
   .mail { background: #E3EEFC; border-color: #2F6FD6; color: #0C2F66; }
   .out  { background: #FDE3E1; border-color: #E2483D; color: #5E1611; }
+  .view { background: #E6F4FB; border-color: #2A9BC9; color: #0B3A50; }
 </style>
 </head>
 <body>
@@ -57,14 +58,15 @@ const cy = l => Y0 + LH * (l - 1) + LH / 2;
 // [lane, column, style, badge, title, detail]
 const boxes = {
   S1: [4, 1, "trig", "", "Every morning, 6 am IST", "Vercel Cron starts the run. A “Run now” button does the same on demand"],
-  N1: [6, 2, "mail", "", "Funding news from the last 24 hours", "Entrackr, YourStory, Inc42, Google News (trusted outlets only), PR Newswire, TechCrunch"],
-  H1: [1, 3, "hum", "Human judgment", "Rohit owns the thesis", "Edits sectors, stage, cheque size and exclusions in Supabase. The next run follows it, no code change"],
-  D1: [3, 3, "ctx", "", "Thesis and contact history", "The current thesis version, plus every company ever drafted, sent or skipped"],
+  N1: [6, 2, "mail", "", "Funding news from the last 24 hours", "20 feeds. India: Entrackr, Inc42, YourStory, ET Tech. Global: TechCrunch, Crunchbase, Tech.eu, Sifted, PR Newswire, Google News (trusted outlets)"],
+  H1: [1, 3, "hum", "Human judgment", "Rohit owns the thesis", "Edits geography, sectors, stage, cheque size and exclusions in Supabase. The next run follows it, no code change"],
+  D1: [3, 3, "ctx", "", "Thesis and contact history", "Thesis v2: global, India as a small boost. Plus every company ever drafted, sent or skipped"],
   G1: [5, 4, "ai", "", "Reads each article", "Is this a new pre-seed or seed round? Company, amount, date, investors, founders, each with a quote"],
   S2: [4, 4, "proc", "", "Checks facts, removes repeats", "Quotes must match the article. Merges outlets on one round. Skips anyone already contacted or past the window"],
   N2: [6, 5, "mail", "", "The startup's own website", "What they do, in their words. A contact only if they publish one"],
   G2: [5, 5, "ai", "", "Scores fit and drafts the email", "One reason per thesis criterion. The email uses only checked facts. A contact is never guessed"],
   H3: [1, 5, "hum", "Human check", "Spot-checks “Filtered out”", "Every startup turned away is listed with its reason. One click rescues it while the window is open"],
+  H4: [1, 4, "view", "", "Watches the pipeline", "Each run live: sources, articles, rounds, checks, scores and drafts, each with its source link"],
   S3: [4, 6, "out", "", "Morning queue, ranked by fit", "Each startup with its sources, fit reasons and days left in the window"],
   H2: [1, 6, "hum", "Human judgment", "Reads, edits, approves", "About 2 minutes each. The system never sends anything"],
   M1: [2, 6, "mail", "", "Draft waits in Gmail", "Created only on Approve. Rohit presses Send himself"],
@@ -93,7 +95,8 @@ const arrows = [
   [R("S3"), [1802, R("S3")[1]], [1802, R("H2")[1]], R("H2")], // queue to Rohit
   [B("H2"), T("M1")],                       // approve creates the Gmail draft
   viaX(L("H2", 30), L("D2", -20), 1540),    // outreach recorded
-  [L("D2", 25), R("D1", 25)]                // history feeds tomorrow's dedupe
+  [L("D2", 25), R("D1", 25)],               // history feeds tomorrow's dedupe
+  [T("S2"), B("H4")]                        // every stage is visible to Rohit
 ];
 
 function el(tag, attrs, parent, text) {
@@ -134,7 +137,7 @@ el("text", { x: 56, y: ly, "font-size": 15, fill: "#13294B" }, bg, "Orange = hum
 el("line", { x1: 470, y1: ly - 6, x2: 520, y2: ly - 6, stroke: "#1F3A5F", "stroke-width": 1.8, "stroke-dasharray": "6 5", "marker-end": "url(#ah)" }, bg);
 el("text", { x: 532, y: ly, "font-size": 15, fill: "#13294B" }, bg, "Flow of a funding announcement");
 el("text", { x: 790, y: ly, "font-size": 15, fill: "#5A6B85" }, bg,
-   "Scope: India + global press releases. All AI steps use Gemini Flash. The system drafts; it never sends.");
+   "Scope: global startup network, India first. All AI steps use Gemini Flash. The system drafts; it never sends.");
 </script>
 </body>
 </html>
