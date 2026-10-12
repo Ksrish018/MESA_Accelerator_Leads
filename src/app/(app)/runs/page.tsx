@@ -93,7 +93,7 @@ export default async function Runs() {
         <section className="stack-16 reveal reveal-3">
           <h2 className="h2">Decisions, 30 days</h2>
           <div className="funnel" style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
-            <div><div className="kpi-n" style={{ fontSize: 28 }}>{decisions.filter((d) => d.action === "approved").length}</div><div className="tiny muted">Approved</div></div>
+            <div><div className="kpi-n" style={{ fontSize: 28 }}>{Math.max(0, decisions.filter((d) => d.action === "approved").length - decisions.filter((d) => d.action === "undo" && d.reason === "Approve undone").length)}</div><div className="tiny muted">Approved</div></div>
             <div><div className="kpi-n" style={{ fontSize: 28 }}>{decisions.filter((d) => d.action === "skipped").length}</div><div className="tiny muted">Skipped</div></div>
             <div><div className="kpi-n" style={{ fontSize: 28 }}>{rescues}</div><div className="tiny muted">Rescued</div></div>
           </div>

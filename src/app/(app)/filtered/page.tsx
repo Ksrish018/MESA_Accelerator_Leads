@@ -29,7 +29,7 @@ function Row({ c, rescue = true }: { c: CardView; rescue?: boolean }) {
       <div className="grow stack-8">
         <div className="row">
           <Link href={`/review/${c.id}`} style={{ color: "var(--text)", fontWeight: 600 }}>{c.name}</Link>
-          <span className="small muted">{c.stageText ?? c.stageLabel}{c.amountText ? ` · ${c.amountText}` : ""}</span>
+          <span className="small muted">{[c.stage !== "unknown" ? c.stageText ?? c.stageLabel : null, c.amountText].filter(Boolean).join(" · ")}</span>
         </div>
         <div className="row small">
           <span>{c.filterReason ?? (c.status === "closed" ? "Window closed" : "Filtered")}</span>
@@ -60,7 +60,7 @@ export default async function Filtered() {
 
         {worth.length ? (
           <section className="stack-16 reveal">
-            <div className="row"><h2 className="h2">Worth a look</h2><Chip label="Worth a look" /></div>
+            <h2 className="h2">Worth a look <span className="muted num">· {worth.length}</span></h2>
             <div className="list">{worth.map((c) => <Row key={c.id} c={c} />)}</div>
           </section>
         ) : null}

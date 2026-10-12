@@ -152,14 +152,20 @@ function Spotlight({ step, onNext, onBack, onExit }: { step: number; onNext: () 
         if (tries++ < 120) raf = requestAnimationFrame(find);
         return;
       }
-      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-      el.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
-      const update = () => setRect(el.getBoundingClientRect());
+      // Instant scroll: smooth scrolling gets interrupted by layout changes and leaves the target off screen.
+      const r0 = el.getBoundingClientRect();
+      const fits = r0.top >= 64 && r0.bottom <= window.innerHeight - (mobile ? 200 : 24);
+      if (!fits) window.scrollTo({ top: Math.max(0, window.scrollY + r0.top - 80), behavior: "auto" });
+      // Track the target continuously so layout shifts, scrolling and late data never misplace the spotlight.
+      let last = "";
+      const update = () => {
+        const r = el.getBoundingClientRect();
+        const key = `${Math.round(r.top)}:${Math.round(r.left)}:${Math.round(r.width)}:${Math.round(r.height)}`;
+        if (key !== last) { last = key; setRect(r); }
+      };
       update();
-      setTimeout(update, 400);
-      window.addEventListener("resize", update);
-      window.addEventListener("scroll", update, true);
-      cleanup = () => { window.removeEventListener("resize", update); window.removeEventListener("scroll", update, true); };
+      const timer = window.setInterval(update, 120);
+      cleanup = () => window.clearInterval(timer);
     };
     let cleanup = () => {};
     setRect(null);
