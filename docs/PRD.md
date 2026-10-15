@@ -102,11 +102,60 @@ A thesis is a **versioned row**. To change it, insert a new version and mark it 
 6. Geography (always passes under a Global thesis).
 7. At least one Tier 1 or Tier 2 source.
 
-### 4.3 Score and buckets
+### 4.3 How the thesis is scored
 
-- Gemini rates each AI criterion 0–5 and must cite fact IDs. Code sets a score above 0 with no valid evidence to 0, and shows only verified quotes.
-- Code scores *Round size* (5 in range, 2 undisclosed or within 2×, 0 otherwise) and *Home market* (5 if the location matches, 2 unknown, 0 elsewhere).
-- Total = Σ (score/5 × weight) ÷ Σ weights × 100. **Fit** ≥ 70 → Today and Gmail Drafts. **Worth a look** ≥ 55 → top of Filtered out. **Not a fit** → Filtered out.
+Only startups that pass every hard rule (§4.2) are scored. Each criterion gets a score from **0 to 5**; code turns those into one total **out of 100**.
+
+**Criteria, weights and who scores them (thesis v2)**
+
+| # | Criterion | Weight | Share of total | Scored by | What earns a high score | What scores 0 |
+|---|---|---|---|---|---|---|
+| 1 | Sector and business-model fit | 30 | 27% | Gemini, with evidence | Builds B2B SaaS, applied or vertical AI, developer tools or AI infrastructure, or B2B fintech infrastructure; businesses or developers pay | Consumer product, or nothing in the sources says what they build |
+| 2 | Programme need | 20 | 18% | Gemini, with evidence | Stated use of funds matches what the programme offers (hiring, go-to-market, product, expansion); first institutional round; not already in an accelerator | No use of funds stated |
+| 3 | Evidence of progress | 20 | 18% | Gemini, with evidence | Live product, named customers, pilots or partners, revenue or user numbers, a recent launch | No evidence in the sources (never invented) |
+| 4 | Team, from work evidence | 15 | 14% | Gemini, with evidence | Technical or engineering background, a prior startup, stated domain experience | No work evidence. College, age, gender, religion, caste, family and photos are never considered |
+| 5 | Round size in range | 15 | 14% | **Code** | 5 = amount inside $100K–$3M · 2 = undisclosed, or within 2× of the range | 0 = far outside the range |
+| 6 | Home market: India | 10 | 9% | **Code** | 5 = stated location is in India · 2 = location unknown | 0 = stated location is elsewhere |
+| | **Total weight** | **110** | 100% | | | |
+
+**Formula (code, `computeTotal`)**
+
+> Total = ( Σ over criteria of (score ÷ 5) × weight ) ÷ ( Σ of weights ) × 100, rounded.
+
+Because the total is divided by the sum of weights, Rohit can add, remove or reweight criteria in Supabase and the total stays on a 0–100 scale.
+
+**Buckets**
+
+| Total | Bucket | What happens |
+|---|---|---|
+| **70–100** | Fit | Draft written and checked; placed in Rohit's Gmail Drafts; shown on Today |
+| **55–69** | Worth a look | Top of Filtered out, with Rescue |
+| **0–54** | Not a fit | Filtered out, with the score as the reason |
+
+**Worked example: CurvetAI (live, thesis v2)**
+
+| Criterion | Score | Weight | Points = score ÷ 5 × weight | Evidence quote (verified) |
+|---|---|---|---|---|
+| Sector and business-model fit | 4/5 | 30 | 24.0 | "…CurvetAI operates an AI workspace…" |
+| Programme need | 3/5 | 20 | 12.0 | "The fresh capital will be used to expand CurvetAI's engineering…" |
+| Evidence of progress | 4/5 | 20 | 16.0 | "more than 1 lakh monthly users globally" |
+| Team, from work evidence | 4/5 | 15 | 12.0 | "Founded in December 2025 by Vivek Dubey and Utkarsh Gupta…" |
+| Round size in range | 5/5 | 15 | 15.0 | "…has raised Rs 6 crore in a pre-seed round…" (≈ $682K) |
+| Home market: India | 5/5 | 10 | 10.0 | "Pune-based AI startup CurvetAI…" |
+| | | **110** | **89.0** | |
+
+89 ÷ 110 × 100 = **81 → Fit**.
+
+**Guardrails on Gemini's scores (code)**
+
+- Gemini scores only the four AI criteria, using numbered facts that have already passed the quote check, and must return the fact IDs it relied on.
+- A score above 0 with no valid fact ID is set to **0**: no evidence, no score.
+- Scores are clamped to whole numbers from 0 to 5.
+- The quote shown to Rohit is the verified quote of a cited fact, never Gemini's own wording.
+- Code, not Gemini, scores round size and home market, adds up the total and picks the bucket.
+- Every score row records the **thesis version** that produced it (Older thesis → Rescore).
+
+**Signals that affect order, not score:** warm path (an investor on Rohit's network list), confidence (source count, Tier 1 present, quotes verified) and *Closing* decide the order on Today (§4.6). They never change the fit score.
 
 ### 4.4 Lead signals (extracted with quotes; `null` without one)
 
