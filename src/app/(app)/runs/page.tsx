@@ -25,6 +25,7 @@ export default async function Runs() {
     skipCounts.set(k, (skipCounts.get(k) ?? 0) + 1);
   }
   const rescues = decisions.filter((x) => x.action === "rescued").length;
+  const signins = decisions.filter((x) => x.action === "signin" || x.action === "signin_failed").sort((a, b) => String(b.at).localeCompare(String(a.at)));
 
   const funnel = [
     ["Fetched", c.fetched ?? 0],
@@ -104,6 +105,26 @@ export default async function Runs() {
               ))}
             </div>
           ) : null}
+        </section>
+
+        <section className="stack-16 reveal reveal-4">
+          <h2 className="h2">Sign-ins, 30 days <span className="muted num">· {signins.filter((x) => x.action === "signin").length}</span></h2>
+          {signins.length ? (
+            <div className="table-wrap">
+              <table className="t">
+                <thead><tr><th>When</th><th>Result</th><th>Browser · approximate place</th></tr></thead>
+                <tbody>
+                  {signins.slice(0, 40).map((x, i) => (
+                    <tr key={i}>
+                      <td>{fmtDateTime(x.at)}</td>
+                      <td>{x.action === "signin" ? <span className="chip chip-green">Signed in</span> : <span className="chip chip-red">Wrong password</span>}</td>
+                      <td className="small">{x.reason}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : <p className="small muted" style={{ margin: 0 }}>No sign-ins recorded yet.</p>}
         </section>
 
         <section className="stack-16 reveal reveal-4">

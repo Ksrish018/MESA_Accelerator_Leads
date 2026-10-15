@@ -342,3 +342,14 @@ describe("gmail draft message", () => {
     expect(m).toContain("text/plain");
   });
 });
+
+import { describeAgent } from "@/lib/access";
+describe("sign-in log", () => {
+  it("describes browsers without storing anything personal", () => {
+    expect(describeAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36")).toBe("Chrome on Windows");
+    expect(describeAgent("Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1")).toBe("Safari on iPhone");
+    expect(describeAgent("Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0 Safari/537.36 Edg/129.0")).toBe("Edge on Mac");
+    expect(describeAgent("curl/8.4.0")).toBe("Automated client");
+    expect(describeAgent(null)).toBe("Unknown browser");
+  });
+});
