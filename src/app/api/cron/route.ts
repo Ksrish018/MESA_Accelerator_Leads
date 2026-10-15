@@ -1,6 +1,6 @@
 import { after, NextResponse } from "next/server";
 import { hasCronSecret } from "@/lib/auth";
-import { advanceRun, startRun } from "@/lib/runs/pipeline";
+import { advanceRun, noteRunError, startRun } from "@/lib/runs/pipeline";
 import { chain } from "@/lib/runs/chain";
 
 export const dynamic = "force-dynamic";
@@ -14,8 +14,12 @@ export async function GET(req: Request) {
   const run = await startRun("cron");
   const origin = new URL(req.url).origin;
   after(async () => {
-    const r = await advanceRun(run.id, 200_000);
-    if (r.status === "running") await chain(origin, run.id, 1);
+    let status = "running";
+    try {
+      status = (await advanceRun(run.id, 200_000)).status;
+    } finally {
+      if (status === "running" && !(await chain(origin, run.id, 1))) await noteRunError(run.id, "chain", "Could not start the next background slice");
+    }
   });
   return NextResponse.json({ started: run.id });
 }

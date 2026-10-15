@@ -1,6 +1,7 @@
 import { after, NextResponse } from "next/server";
 import { chain } from "@/lib/runs/chain";
-import { advanceRun } from "@/lib/runs/pipeline";
+import { db } from "@/lib/db";
+import { advanceRun, noteRunError } from "@/lib/runs/pipeline";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -10,13 +11,23 @@ export const maxDuration = 300;
  * 200 s after the response, then calls itself again if the run is unfinished.
  * Requires CRON_SECRET (checked in middleware).
  */
+async function isRunning(runId: string): Promise<boolean> {
+  const r = await db().from("runs").select("status").eq("id", runId).maybeSingle();
+  return r.data?.status === "running";
+}
+
 export async function POST(req: Request) {
   const { runId, hop = 0 } = (await req.json().catch(() => ({}))) as { runId?: string; hop?: number };
   if (!runId) return NextResponse.json({ error: "runId required" }, { status: 400 });
   const origin = new URL(req.url).origin;
   after(async () => {
-    const run = await advanceRun(runId, 200_000);
-    if (run.status === "running" && hop < 12) await chain(origin, runId, hop + 1);
+    try {
+      await advanceRun(runId, 200_000);
+    } finally {
+      // Keep going until the run is done; each hop is one slice of about 3 minutes.
+      const still = await isRunning(runId);
+      if (still && hop < 60 && !(await chain(origin, runId, hop + 1))) await noteRunError(runId, "chain", "Could not start the next background slice");
+    }
   });
   return NextResponse.json({ accepted: true, runId, hop }, { status: 202 });
 }

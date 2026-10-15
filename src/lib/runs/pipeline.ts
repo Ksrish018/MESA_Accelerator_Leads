@@ -28,7 +28,8 @@ export interface RunRow {
   counts: Record<string, any>; errors: { at: string; step: string; message: string }[];
 }
 
-const EXTRACT_BATCH = 4;
+const EXTRACT_BATCH = 8;
+const EVAL_PARALLEL = 3;
 // Callers keep budget + one unit of work (~90 s worst case) under the 300 s function limit.
 
 export async function currentRun(): Promise<RunRow | null> {
@@ -172,21 +173,25 @@ async function stepEvaluate(run: RunRow, deadline: number): Promise<boolean> {
   const supa = db();
   const [thesis, settings, stageMap] = await Promise.all([activeThesis(), loadSettings(), loadStageMap()]);
   while (Date.now() < deadline) {
-    const batch = must(await supa.rpc("claim_startups", { p_limit: 1 }), "claim startups") as Record<string, any>[];
+    // A few startups at a time: each one is research + score + draft, mostly waiting on the network.
+    const batch = must(await supa.rpc("claim_startups", { p_limit: EVAL_PARALLEL }), "claim startups") as Record<string, any>[];
     if (!batch.length) return true;
-    const s = batch[0];
-    try {
-      const outcome = await evaluateStartup(s.id, { runId: run.id, thesis, settings, stageMap });
-      bump(run.counts, "checked");
-      if (outcome === "fit") { bump(run.counts, "scored"); bump(run.counts, "drafted"); bump(run.counts, "fits"); }
-      else if (outcome === "worth_a_look" || outcome === "not_a_fit") { bump(run.counts, "scored"); bump(run.counts, outcome); }
-      else bump(run.counts, outcome);
-    } catch (e) {
-      recordError(run, "evaluate", e);
-      await supa.from("startups").update({ eval_claimed_at: null }).eq("id", s.id);
-      if (e instanceof GeminiError && e.retryable) { await save(run); return false; }
-    }
+    let pause = false;
+    await Promise.all(batch.map(async (s) => {
+      try {
+        const outcome = await evaluateStartup(s.id, { runId: run.id, thesis, settings, stageMap });
+        bump(run.counts, "checked");
+        if (outcome === "fit") { bump(run.counts, "scored"); bump(run.counts, "drafted"); bump(run.counts, "fits"); }
+        else if (outcome === "worth_a_look" || outcome === "not_a_fit") { bump(run.counts, "scored"); bump(run.counts, outcome); }
+        else bump(run.counts, outcome);
+      } catch (e) {
+        recordError(run, "evaluate", e);
+        await supa.from("startups").update({ eval_claimed_at: null }).eq("id", s.id);
+        if (e instanceof GeminiError && e.retryable) pause = true;
+      }
+    }));
     await save(run);
+    if (pause) return false;
   }
   return false;
 }
@@ -229,6 +234,13 @@ async function stepWindow(run: RunRow) {
       await supa.from("startups").update({ status, flags: [...flags] }).eq("id", s.id);
     }
   }
+}
+
+/** Record a problem on a run so it shows on Runs and in Pipeline. */
+export async function noteRunError(runId: string, step: string, message: string) {
+  const r = await db().from("runs").select("errors").eq("id", runId).maybeSingle();
+  const errors = [...((r.data?.errors as RunRow["errors"]) ?? []), { at: new Date().toISOString(), step, message }].slice(-50);
+  await db().from("runs").update({ errors }).eq("id", runId);
 }
 
 /** Advance a run for up to `budgetMs`. Safe to call concurrently: the lock decides. */
