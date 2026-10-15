@@ -26,6 +26,9 @@ export interface RunRow {
   id: string; trigger: "cron" | "manual"; started_at: string; finished_at: string | null;
   status: "running" | "done" | "failed"; step: Step; since: string | null;
   counts: Record<string, any>; errors: { at: string; step: string; message: string }[];
+  lock_until?: string | null;
+  /** Set by advanceRun: true when this call did the work, false when another call held the lock. */
+  claimed?: boolean;
 }
 
 const EXTRACT_BATCH = 8;
@@ -251,9 +254,9 @@ export async function advanceRun(runId: string, budgetMs: number): Promise<RunRo
   const lockSeconds = Math.min(290, Math.ceil(budgetMs / 1000) + 240);
   const claimed = must(await supa.rpc("claim_run", { p_run: runId, p_seconds: lockSeconds }), "claim run") as RunRow[];
   if (!claimed.length) {
-    return must(await supa.from("runs").select("*").eq("id", runId).single(), "load run") as RunRow;
+    return { ...(must(await supa.from("runs").select("*").eq("id", runId).single(), "load run") as RunRow), claimed: false };
   }
-  const run = claimed[0];
+  const run = { ...claimed[0], claimed: true };
   run.errors = run.errors ?? [];
   run.counts = run.counts ?? {};
   try {

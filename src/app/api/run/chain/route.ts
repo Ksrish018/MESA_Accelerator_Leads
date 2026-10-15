@@ -21,11 +21,13 @@ export async function POST(req: Request) {
   if (!runId) return NextResponse.json({ error: "runId required" }, { status: 400 });
   const origin = new URL(req.url).origin;
   after(async () => {
+    let worked = true;
     try {
-      await advanceRun(runId, 150_000);
+      worked = (await advanceRun(runId, 150_000)).claimed !== false;
     } finally {
-      // Keep going until the run is done; each hop is one slice of about 3 minutes.
-      const still = await isRunning(runId);
+      // Keep going until the run is done. Only the slice that did the work hands off, so a revived
+      // run never ends up with two chains.
+      const still = worked && (await isRunning(runId));
       if (still && hop < 60 && !(await chain(origin, runId, hop + 1))) await noteRunError(runId, "chain", "Could not start the next background slice");
     }
   });
