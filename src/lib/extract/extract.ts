@@ -135,6 +135,8 @@ export async function extractArticle(opts: {
     prompt,
     schema: EXTRACTION_SCHEMA,
     validate: validateExtraction,
+    // Weekly roundups list many startups with quotes: the answer is long, so allow more time.
+    timeoutMs: 90_000,
   });
   out.rounds = out.rounds.map((r) => sanitizeFounders({
     ...r,

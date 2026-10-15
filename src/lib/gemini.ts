@@ -51,7 +51,8 @@ async function once(model: string, body: unknown, timeoutMs: number) {
     return json;
   } catch (e) {
     if (e instanceof GeminiError) throw e;
-    throw new GeminiError(`Gemini request failed: ${(e as Error).message}`, true);
+    const timedOut = (e as Error).name === "AbortError" || /abort/i.test((e as Error).message);
+    throw Object.assign(new GeminiError(`Gemini request failed: ${timedOut ? "timed out" : (e as Error).message}`, true), { timedOut });
   } finally {
     clearTimeout(timer);
   }
@@ -85,7 +86,9 @@ export async function callGemini<T>(c: GeminiCall<T>): Promise<T> {
     } catch (e) {
       const err = e as GeminiError;
       await logCall({ run_id: c.runId, step: c.step, model, ms: Date.now() - t0, ok: false, error: err.message.slice(0, 300) });
-      if (err.retryable && attempt < 3) {
+      // A timeout is retried once (a long answer will likely time out again); 429/5xx up to three times.
+      const limit = (err as GeminiError & { timedOut?: boolean }).timedOut ? 1 : 3;
+      if (err.retryable && attempt < limit) {
         await new Promise((r) => setTimeout(r, 1000 * 2 ** attempt + Math.random() * 500));
         continue;
       }

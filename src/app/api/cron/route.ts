@@ -16,7 +16,7 @@ export async function GET(req: Request) {
   after(async () => {
     let status = "running";
     try {
-      status = (await advanceRun(run.id, 200_000)).status;
+      status = (await advanceRun(run.id, 150_000)).status;
     } finally {
       if (status === "running" && !(await chain(origin, run.id, 1))) await noteRunError(run.id, "chain", "Could not start the next background slice");
     }

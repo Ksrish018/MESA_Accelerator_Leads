@@ -8,7 +8,7 @@ export const maxDuration = 300;
 
 /**
  * Background continuation for cron runs. Responds at once, works for up to
- * 200 s after the response, then calls itself again if the run is unfinished.
+ * 150 s after the response (plus one batch, under the 300 s limit), then calls itself again if the run is unfinished.
  * Requires CRON_SECRET (checked in middleware).
  */
 async function isRunning(runId: string): Promise<boolean> {
@@ -22,7 +22,7 @@ export async function POST(req: Request) {
   const origin = new URL(req.url).origin;
   after(async () => {
     try {
-      await advanceRun(runId, 200_000);
+      await advanceRun(runId, 150_000);
     } finally {
       // Keep going until the run is done; each hop is one slice of about 3 minutes.
       const still = await isRunning(runId);
